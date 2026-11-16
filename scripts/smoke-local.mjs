@@ -93,7 +93,7 @@ for (const path of ['/', '/contact', '/privacy', '/terms', ...servicePages.map((
     assert.deepEqual(captions(featured), [before, after, before, after]);
     assert.deepEqual(imageSources(estimateGallery), galleryPhotos);
     assert.deepEqual(captions(estimateGallery), ['Before', 'After']);
-    assert.equal([...html.matchAll(/aria-expanded="false" aria-controls="service-faq-answer-/g)].length, 5);
+    assert.equal([...html.matchAll(/aria-expanded="false" aria-controls="service-faq-answer-/g)].length, 6);
     assert.match(html, new RegExp(`<option[^>]*value="${category}" selected>`));
     const redirect = await fetch(new URL(`${path}/`, url), { redirect: 'manual' });
     assert.ok([301, 302, 307, 308].includes(redirect.status));

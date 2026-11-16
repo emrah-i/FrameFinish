@@ -1,2 +1,0 @@
-# Local preview does not store requests or send emails.
-# Production secrets are installed via Wrangler, never added here.

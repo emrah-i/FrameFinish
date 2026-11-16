@@ -5,7 +5,7 @@ const root = new URL('../', import.meta.url);
 const read = (file) => readFile(new URL(file, root), 'utf8');
 const [site, wrangler] = await Promise.all([
   read('src/content/site.json').then(JSON.parse),
-  read('wrangler.jsonc').then(JSON.parse),
+  read('wrangler.json').then(JSON.parse),
 ]);
 const production = wrangler.env.production;
 const issues = [];

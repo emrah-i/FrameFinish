@@ -12,7 +12,8 @@ export default defineConfig({
   workers: 4,
   use: { baseURL, reducedMotion: 'reduce', trace: 'retain-on-failure', screenshot: 'only-on-failure' },
   webServer: {
-    command: `npm run build:preview && npm run dev:worker -- --ip 127.0.0.1 --port ${port} --inspector-port 0 --show-interactive-dev-session=false --env-file .dev.vars.example --persist-to .wrangler/browser-tests --assets dist/browser-tests/client`,
+    // An explicit empty env file keeps Wrangler from loading local credentials.
+    command: `npm run build:preview && npm run dev:worker -- --ip 127.0.0.1 --port ${port} --inspector-port 0 --show-interactive-dev-session=false --env-file /dev/null --persist-to .wrangler/browser-tests --assets dist/browser-tests/client`,
     url: `${baseURL}/api/health`,
     reuseExistingServer: false,
     env: {
