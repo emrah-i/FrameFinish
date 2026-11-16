@@ -76,7 +76,7 @@ img { display: block; }
 .estimate-label-compact { display: none; }
 .menu-toggle { display: none; }
 
-.sticky-estimate { --estimate-divider-width: 2px; position: fixed; inset: var(--header-height) 0 auto; background: var(--color-charcoal); border-top: var(--estimate-divider-width) solid var(--header-divider-color); box-shadow: 0 8px 16px #17171724; }
+.sticky-estimate { --estimate-divider-width: 1.5px; position: fixed; inset: var(--header-height) 0 auto; background: var(--color-charcoal); border-top: var(--estimate-divider-width) solid var(--header-divider-color); box-shadow: 0 8px 16px #17171724; }
 body:has(.estimate-dialog[open]) .sticky-estimate { visibility: hidden; }
 .sticky-estimate-fields { display: none; min-width: 0; flex: 1; padding: 0; border: 0; }
 .sticky-estimate-fields label { min-width: 0; }
