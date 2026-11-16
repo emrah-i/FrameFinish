@@ -1,0 +1,42 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "frame-finish",
+  "main": "src/server/index.ts",
+  "compatibility_date": "2026-11-05",
+  "workers_dev": false,
+  "preview_urls": false,
+  "assets": {
+    "directory": "./dist/client",
+    "binding": "ASSETS",
+    "html_handling": "drop-trailing-slash",
+    "not_found_handling": "404-page",
+    "run_worker_first": true
+  },
+  "observability": {
+    "enabled": true,
+    "logs": { "invocation_logs": false }
+  },
+  "env": {
+    "staging": {
+      "name": "frame-finish-staging",
+      "workers_dev": false,
+      "preview_urls": false,
+      "vars": { "ENVIRONMENT": "staging" }
+    },
+    "production": {
+      "name": "frame-finish",
+      "workers_dev": false,
+      "preview_urls": false,
+      "routes": [
+        { "pattern": "framefinishremodeling.com", "custom_domain": true },
+        { "pattern": "www.framefinishremodeling.com", "custom_domain": true }
+      ],
+      "vars": {
+        "ENVIRONMENT": "production",
+        "SITE_URL": "https://framefinishremodeling.com",
+        "EMAIL_FROM": "sales@framefinishremodeling.com",
+        "LEAD_EMAIL": "leads@framefinishremodeling.com"
+      }
+    }
+  }
+}

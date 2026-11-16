@@ -1,0 +1,26 @@
+/* The initial fade works independently of the deferred Motion chunk. */
+@keyframes content-enter { from { opacity: 0; } to { opacity: 1; } }
+
+[data-reveal-group]:not([data-reveal]):not([data-reveal-children]),
+[data-reveal-group][data-reveal-children]:not([data-reveal]) > *,
+.sticky-estimate:not([hidden]) [data-reveal-on-open],
+dialog[open][data-reveal-on-open] {
+  animation: content-enter var(--animation-duration) ease-in-out;
+}
+
+[data-reveal-group]:focus-within,
+[data-reveal-group]:target,
+[data-reveal-group]:has(:target),
+[data-reveal-group][data-reveal-children]:focus-within > *,
+[data-reveal-group][data-reveal-children]:has(:target) > * {
+  animation: none;
+}
+
+[data-reveal-on-open]:has(:focus-visible) { opacity: 1 !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal-group], [data-reveal-children] > *, [data-reveal-on-open] {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}

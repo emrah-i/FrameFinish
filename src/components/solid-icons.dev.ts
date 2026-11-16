@@ -1,0 +1,9 @@
+export { faBars } from '@fortawesome/free-solid-svg-icons/faBars';
+export { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
+export { faChevronRight } from '@fortawesome/free-solid-svg-icons/faChevronRight';
+export { faEnvelope } from '@fortawesome/free-solid-svg-icons/faEnvelope';
+export { faLocationDot } from '@fortawesome/free-solid-svg-icons/faLocationDot';
+export { faPhone } from '@fortawesome/free-solid-svg-icons/faPhone';
+export { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
+export { faStar } from '@fortawesome/free-solid-svg-icons/faStar';
+export { faXmark } from '@fortawesome/free-solid-svg-icons/faXmark';

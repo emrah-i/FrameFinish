@@ -1,0 +1,17 @@
+.remodel-gallery { min-width: 0; }
+.remodel-gallery .remodel-gallery-heading { margin-bottom: 12px; }
+.remodel-gallery-heading h2 { font-size: clamp(1.4rem, 2.65vw, 2.25rem); }
+
+@media (min-width: 781px) {
+  .estimate-section-copy,
+  .remodel-gallery,
+  .remodel-gallery :is(.media-carousel, .media-carousel-viewport, .media-carousel-item, figure) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .remodel-gallery,
+  .remodel-gallery :is(.media-carousel, .media-carousel-viewport, .media-carousel-track, figure, .gallery-photo-button) { flex-grow: 1; }
+  .remodel-gallery .gallery-photo-button { position: relative; min-height: clamp(220px, 19vw, 320px); }
+  .remodel-gallery .gallery-photo-button img { position: absolute; inset: 0; height: 100%; aspect-ratio: auto; }
+}

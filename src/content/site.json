@@ -1,0 +1,38 @@
+{
+  "businessName": "Frame & Finish Remodeling",
+  "legalName": "BAIE Construction LLC",
+  "url": "https://framefinishremodeling.com",
+  "googleRating": null,
+  "email": "sales@framefinishremodeling.com",
+  "phone": "",
+  "phonePlaceholder": true,
+  "address": "",
+  "businessHours": {
+    "Monday–Friday": "9 a.m.–8 p.m.",
+    "Saturday–Sunday": "10 a.m.–3 p.m."
+  },
+  "coverageProvisional": true,
+  "turnstileSiteKey": "",
+  "serviceAreas": [
+    {
+      "name": "Delaware, Powell & northern Westerville, Ohio",
+      "locations": [
+        { "city": "Delaware", "state": "OH" },
+        { "city": "Powell", "state": "OH" },
+        { "city": "Northern Westerville", "state": "OH" }
+      ],
+      "zipCodes": [],
+      "partialZipCodes": [
+        "43015",
+        "43065",
+        "43082"
+      ],
+      "services": [
+        "kitchen",
+        "bathroom",
+        "flooring"
+      ],
+      "shortName": "Delaware County, OH"
+    }
+  ]
+}

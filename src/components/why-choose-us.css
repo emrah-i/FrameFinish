@@ -1,0 +1,4 @@
+.why-choose-us {
+  padding-block: clamp(52px, 5.3vw, 76px);
+  background: var(--color-warm-white);
+}
