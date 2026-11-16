@@ -36,7 +36,14 @@
         "SITE_URL": "https://framefinishremodeling.com",
         "EMAIL_FROM": "sales@framefinishremodeling.com",
         "LEAD_EMAIL": "leads@framefinishremodeling.com"
-      }
+      },
+      "ratelimits": [
+        {
+          "name": "RATE_LIMITER",
+          "namespace_id": "1003",
+          "simple": { "limit": 10, "period": 60 }
+        }
+      ]
     }
   }
 }
