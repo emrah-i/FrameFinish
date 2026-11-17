@@ -33,7 +33,7 @@ export default function ProcessTimeline() {
       timer = window.setTimeout(() => {
         setActive(index => index + 1);
         schedule();
-      }, 1400);
+      }, 2000);
     }
 
     const observer = new IntersectionObserver(([entry]) => {

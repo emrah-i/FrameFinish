@@ -8,19 +8,14 @@
   "phonePlaceholder": true,
   "address": "",
   "businessHours": {
-    "Monday–Friday": "9 a.m.–8 p.m.",
-    "Saturday–Sunday": "10 a.m.–3 p.m."
+    "Monday-Saturday": "9 AM-7 PM"
   },
+  "businessHoursTimeZone": "Eastern Time",
   "coverageProvisional": true,
   "turnstileSiteKey": "",
   "serviceAreas": [
     {
-      "name": "Delaware, Powell & northern Westerville, Ohio",
-      "locations": [
-        { "city": "Delaware", "state": "OH" },
-        { "city": "Powell", "state": "OH" },
-        { "city": "Northern Westerville", "state": "OH" }
-      ],
+      "name": "Dallas, TX",
       "zipCodes": [],
       "partialZipCodes": [
         "43015",
@@ -31,8 +26,7 @@
         "kitchen",
         "bathroom",
         "flooring"
-      ],
-      "shortName": "Delaware County, OH"
+      ]
     }
   ]
 }

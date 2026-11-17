@@ -1,14 +1,14 @@
 import { createContext, createEffect, createSignal, For, onCleanup, onMount, Show, useContext, type ParentProps } from 'solid-js';
 import { disclosure, disclosureVersion, displayedCategories, marketingConsentText, marketingConsentVersion, site } from '../../shared/content';
-import { descriptionLimit, estimateFormIds, normalizeFields, validateFields, type EstimateFields, type EstimateSource, type FieldErrors } from '../../shared/estimates';
+import { descriptionLimit, estimateFormIds, normalizeFields, validateFields, zipPlaceholder, type EstimateFields, type EstimateSource, type FieldErrors } from '../../shared/estimates';
 import { Icon } from '../Icon';
+import FieldErrorTooltip from './FieldErrorTooltip';
 import { FormDraftProvider, useFormDraft } from './form-draft';
 import { phonePlaceholder, rememberPhoneEdit, updatePhoneInput } from './phone';
 import { loadTurnstile } from './Turnstile';
 
 type ProjectPrefill = Partial<Pick<EstimateFields, 'category' | 'description'>>;
-type EstimatePrefill = ProjectPrefill & { marketingOptIn?: boolean };
-type OpenEstimate = (opener: HTMLElement, source: EstimateSource, prefill?: EstimatePrefill, onSuccess?: () => void) => boolean;
+type OpenEstimate = (opener: HTMLElement, source: EstimateSource, prefill?: ProjectPrefill) => boolean;
 const EstimateContext = createContext<OpenEstimate>();
 
 export function useEstimate() {
@@ -45,7 +45,7 @@ export function EstimateTrigger(props: ParentProps<{ source: EstimateSource; cla
     {props.children ?? (props.source === 'header'
       ? <><span class="estimate-label-wide"><QuoteLabel /></span><span class="estimate-label-compact">FREE quote</span></>
       : <QuoteLabel />)}
-    <Icon name="chevron-right" size={18} />
+    <Icon name="chevron-right" />
   </a>;
 }
 
@@ -53,13 +53,13 @@ const fieldConfig = [
   { name: 'name', label: 'Full Name', type: 'text', autocomplete: 'name', maxlength: 100, placeholder: 'Jane Smith' },
   { name: 'email', label: 'Email', type: 'email', autocomplete: 'email', maxlength: 254, placeholder: 'jane@example.com' },
   { name: 'phone', label: 'Phone', type: 'tel', autocomplete: 'tel', maxlength: undefined, placeholder: phonePlaceholder },
-  { name: 'zip', label: 'Project ZIP Code', type: 'text', autocomplete: 'postal-code', maxlength: 5, placeholder: '43015' },
+  { name: 'zip', label: 'Project ZIP Code', type: 'text', autocomplete: 'postal-code', maxlength: 5, placeholder: zipPlaceholder },
 ] as const;
 
 type Receipt = { reference?: string; preview?: boolean };
 type EstimateResponse = Receipt & { message?: string; fields?: FieldErrors; refreshToken?: boolean };
 type FormControls = {
-  prepare: (source: EstimateSource, prefill?: EstimatePrefill, onSuccess?: () => void) => void;
+  prepare: (source: EstimateSource, prefill?: ProjectPrefill) => void;
   close: () => void;
 };
 type ModalForm = {
@@ -76,6 +76,7 @@ function EstimateForm(props: { prefix: string; modal?: ModalForm; contact?: bool
   const category = () => props.contact ? '' : suggested().category ?? draft.value('category') ?? props.category ?? '';
   const description = () => draft.value(detailsField) ?? suggested().description ?? '';
   const [errors, setErrors] = createSignal<FieldErrors>({});
+  const [attempt, setAttempt] = createSignal(0);
   const [message, setMessage] = createSignal('');
   const [pending, setPending] = createSignal(false);
   const [receipt, setReceipt] = createSignal<Receipt>();
@@ -93,7 +94,6 @@ function EstimateForm(props: { prefix: string; modal?: ModalForm; contact?: bool
   let phoneInput!: HTMLInputElement;
   const editPhone = (event: Event) => draft.save({ phone: updatePhoneInput(phoneInput, event) });
   let source: EstimateSource = props.contact ? 'contact' : 'inline';
-  let onSuccess: (() => void) | undefined;
   let latest: { key: string; fingerprint: string; consentedAt?: string } | undefined;
   let removeWidget: (() => void) | undefined;
   let verificationVersion = 0;
@@ -136,13 +136,11 @@ function EstimateForm(props: { prefix: string; modal?: ModalForm; contact?: bool
   onMount(() => setReady(true));
   onCleanup(clearVerification);
   props.modal?.register({
-    prepare(nextSource, prefill, reset) {
+    prepare(nextSource, prefill) {
       if (pending() || receipt()) return;
       source = nextSource;
-      onSuccess = reset;
-      const { marketingOptIn, ...project } = prefill ?? {};
-      setSuggested(project);
-      setConsentedEmail(marketingOptIn ? email() : undefined);
+      setSuggested(prefill ?? {});
+      setConsentedEmail(undefined);
       setErrors({});
       setMessage('');
       queueMicrotask(() => { if (isActive()) startVerification(); });
@@ -181,7 +179,7 @@ function EstimateForm(props: { prefix: string; modal?: ModalForm; contact?: bool
     setMessage('');
     const invalid = Object.keys(fieldErrors) as (keyof EstimateFields)[];
     if (invalid.length) {
-      setMessage('Check the highlighted fields.');
+      setAttempt(previous => previous + 1);
       focus(invalid[0]);
       return;
     }
@@ -212,10 +210,12 @@ function EstimateForm(props: { prefix: string; modal?: ModalForm; contact?: bool
       const result = await response.json() as EstimateResponse;
       if (!response.ok) {
         setErrors(result.fields ?? {});
-        setMessage(result.message || 'Try again or contact us by email.');
+        const firstInvalidField = Object.keys(result.fields ?? {})[0];
+        if (firstInvalidField) setAttempt(previous => previous + 1);
+        setMessage(response.status === 400 && firstInvalidField ? '' : result.message || 'Try again or contact us by email.');
         if (response.status === 409) latest = undefined;
         if (result.refreshToken || site.turnstileSiteKey) void showVerification();
-        focus(Object.keys(result.fields ?? {})[0] ?? 'error');
+        focus(firstInvalidField ?? 'error');
         return;
       }
       clearVerification();
@@ -224,7 +224,6 @@ function EstimateForm(props: { prefix: string; modal?: ModalForm; contact?: bool
       clearSubmittedDraft();
       setConsentedEmail(undefined);
       latest = undefined;
-      onSuccess?.();
       focus('receipt');
     } catch {
       setMessage('We couldn\'t confirm your request. Please try again or contact us by email.');
@@ -242,7 +241,7 @@ function EstimateForm(props: { prefix: string; modal?: ModalForm; contact?: bool
     'aria-describedby': [descriptionId, errors()[field] ? id(`${field}-error`) : undefined].filter(Boolean).join(' ') || undefined,
   });
   function FieldError(props: { field: keyof EstimateFields }) {
-    return <Show when={errors()[props.field]}><p class="field-error" id={id(`${props.field}-error`)}>{errors()[props.field]}</p></Show>;
+    return <FieldErrorTooltip id={id(`${props.field}-error`)} message={errors()[props.field]} attempt={attempt()} />;
   }
 
   return <div class={props.modal ? 'modal-estimate-form' : 'bottom-estimate-form'}>
@@ -285,12 +284,14 @@ function EstimateForm(props: { prefix: string; modal?: ModalForm; contact?: bool
             </div></Show>
             <div class="dialog-field dialog-field-full">
               <label for={id('description')}>{props.contact ? 'Message' : 'What would you like remodeled?'}</label>
-              <textarea {...attrs('description', props.contact ? undefined : id('description-count'))} class="rounded" required rows={props.contact ? 6 : 3} maxlength={descriptionLimit} placeholder={props.contact ? 'Tell us how we can help.' : 'Tell us about the rooms and changes you have in mind.'} value={description()}
-                onInput={event => draft.save({ [detailsField]: event.currentTarget.value })} />
+              <div class="field-tooltip-anchor">
+                <textarea {...attrs('description', props.contact ? undefined : id('description-count'))} class="rounded" required rows={props.contact ? 6 : 3} maxlength={descriptionLimit} placeholder={props.contact ? 'Tell us how we can help.' : 'Tell us about the rooms and changes you have in mind.'} value={description()}
+                  onInput={event => draft.save({ [detailsField]: event.currentTarget.value })} />
+                <FieldError field="description" />
+              </div>
               <Show when={!props.contact}>
                 <p class="description-count" id={id('description-count')}>{description().length.toLocaleString('en-US')} / {descriptionLimit.toLocaleString('en-US')}</p>
               </Show>
-              <FieldError field="description" />
             </div>
           </div>
           <MarketingEmailCheckbox checked={consentedEmail() === email()} onChange={checked => setConsentedEmail(checked ? email() : undefined)} />
@@ -298,7 +299,7 @@ function EstimateForm(props: { prefix: string; modal?: ModalForm; contact?: bool
           <div ref={verification} />
           <Show when={verificationError()}><button type="button" class="text-action rounded" onClick={() => void showVerification()}>Retry verification</button></Show>
           <Show when={message()}><p class="form-error rounded" id={id('error')} tabindex="-1" role="alert">{message()}</p></Show>
-          <button type="submit" class="button button-primary rounded" classList={{ 'quote-action': !props.contact }} disabled={!ready() || pending()}>{pending() ? 'Sending…' : props.contact ? 'Send Message' : <QuoteLabel />} <Icon name="chevron-right" size={18} /></button>
+          <button type="submit" class="button button-primary rounded" classList={{ 'quote-action': !props.contact }} disabled={!ready() || pending()}>{pending() ? 'Sending…' : props.contact ? 'Send Message' : <QuoteLabel />} <Icon name="chevron-right" /></button>
           <FormDisclosure />
         </fieldset>
       </form>
@@ -320,9 +321,9 @@ export function EstimateProvider(props: ParentProps) {
   let opener: HTMLElement | undefined;
   let form: FormControls | undefined;
 
-  const open: OpenEstimate = (trigger, source, prefill, onSuccess) => {
+  const open: OpenEstimate = (trigger, source, prefill) => {
     if (typeof dialog?.showModal !== 'function' || !form) return false;
-    form.prepare(source, prefill, onSuccess);
+    form.prepare(source, prefill);
     opener = trigger;
     if (!dialog.open) dialog.showModal();
     title.focus();

@@ -26,23 +26,19 @@ function decode(raw: string | null): Entries | undefined {
         entries[field] = { value: entry.value.slice(0, fieldLimits[field]), revision: entry.revision };
       }
     }
+    const legacyName = entries.firstName ?? entries.lastName;
+    if (!entries.name && legacyName) {
+      const value = [entries.firstName?.value.trim(), entries.lastName?.value.trim()].filter(Boolean).join(' ');
+      entries.name = { value, revision: legacyName.revision };
+    }
     return entries;
   } catch {
     return;
   }
 }
 
-function nameParts(entries: Entries) {
-  const [, first = '', last = ''] = entries.name?.value.trim().match(/^(\S+)\s*(.*)$/) ?? [];
-  return {
-    firstName: entries.firstName?.value ?? first,
-    lastName: entries.lastName?.value ?? last,
-  };
-}
-
 type FormDraft = {
   value: (field: Field) => string | undefined;
-  names: () => ReturnType<typeof nameParts>;
   save: (changes: Changes) => void;
   clearProjectAfterSuccess: () => () => void;
 };
@@ -81,10 +77,6 @@ export function FormDraftProvider(props: ParentProps) {
     const next = current();
     if ('name' in changes) {
       changes = { ...changes, firstName: undefined, lastName: undefined };
-    } else if ('firstName' in changes || 'lastName' in changes) {
-      const names = { ...nameParts(next), ...changes };
-      const name = [names.firstName?.trim(), names.lastName?.trim()].filter(Boolean).join(' ');
-      changes = { ...changes, firstName: names.firstName, lastName: names.lastName, name };
     }
     const revision = `${Date.now()}-${Math.random()}`;
     for (const field of fields) {
@@ -126,7 +118,6 @@ export function FormDraftProvider(props: ParentProps) {
 
   return <DraftContext.Provider value={{
     value: field => entries[field]?.value,
-    names: () => nameParts(entries),
     save,
     clearProjectAfterSuccess,
   }}>{props.children}</DraftContext.Provider>;

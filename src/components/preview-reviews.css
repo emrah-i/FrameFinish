@@ -26,7 +26,6 @@
 .preview-reviews-average { display: flex; align-items: center; flex-wrap: wrap; gap: 3px 9px; }
 .preview-reviews-average strong { font-size: 1.4rem; }
 .preview-reviews-average > span:last-child { color: #626269; font-size: .85rem; }
-.preview-reviews-average .preview-review-stars { font-size: 1.55rem; }
 
 .preview-reviews-grid {
   display: grid;
@@ -65,11 +64,10 @@
   position: relative;
   display: inline-grid;
   color: #aaa9ae;
-  font-size: 1.27rem;
 }
 
 .preview-review-stars-row { display: flex; gap: 2px; }
-.preview-review-stars-row svg { flex: none; width: 1em; height: 1em; }
+.preview-review-stars-row svg { flex: none; }
 .preview-review-stars-fill { position: absolute; inset: 0; color: var(--google-star-gold); clip-path: inset(0 calc(100% - var(--rating-fill)) 0 0); }
 
 .preview-review-card p { margin-top: 5px; font-size: 1rem; line-height: 1.45; }

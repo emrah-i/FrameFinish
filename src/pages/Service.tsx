@@ -15,10 +15,15 @@ export default function Service(props: { service: ServiceRoute }) {
   const [openFaq, setOpenFaq] = createSignal<number>();
 
   return <main id="main-content" tabindex="-1" class="service-page">
-    <section class="hero service-page-hero quote-form-hero" aria-labelledby="service-page-title" data-reveal-group="" data-reveal-children="">
+    <section class="hero service-page-hero quote-form-hero" classList={{ 'hero-wide-copy': props.service.id !== 'flooring' }}
+      aria-labelledby="service-page-title" data-reveal-group="" data-reveal-children="">
       <Photo image={props.service.photo} priority sizes="100vw" class="hero-photo" />
       <div class="hero-copy">
-        <h1 id="service-page-title">{props.service.pageTitle}</h1>
+        <h1 id="service-page-title">
+          {props.service.pageTitle.split(/(Dallas)/).map(part =>
+            part === 'Dallas' ? <span class="hero-city">{part}</span> : part
+          )}
+        </h1>
         <p>{props.service.summary}</p>
         <HeroActions workHref="#featured-work" category={props.service.id} />
       </div>
@@ -60,7 +65,7 @@ export default function Service(props: { service: ServiceRoute }) {
           return <div class="service-faq-item">
             <h3><button type="button" aria-expanded={expanded()} aria-controls={panelId}
               onClick={() => setOpenFaq(expanded() ? undefined : index())}>
-              {question}<Icon name="chevron-right" size={16} />
+              {question}<Icon name="chevron-right" />
             </button></h3>
             <div class="service-faq-panel" id={panelId} inert={!expanded()}>
               <div><p>{answer}</p></div>

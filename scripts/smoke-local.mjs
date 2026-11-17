@@ -11,9 +11,9 @@ const servicePages = [
 const pageTitles = {
   '/': 'Frame &amp; Finish Remodeling',
   '/contact': 'Contact Us | Frame &amp; Finish Remodeling',
-  '/services/kitchen': 'Kitchen Remodeling in Delaware County, OH | Frame &amp; Finish Remodeling',
-  '/services/bathroom': 'Bathroom Remodeling in Delaware County, OH | Frame &amp; Finish Remodeling',
-  '/services/flooring': 'Flooring in Delaware County, OH | Frame &amp; Finish Remodeling',
+  '/services/kitchen': 'Kitchen Remodeling in Dallas, TX | Frame &amp; Finish Remodeling',
+  '/services/bathroom': 'Bathroom Remodeling in Dallas, TX | Frame &amp; Finish Remodeling',
+  '/services/flooring': 'Flooring in Dallas, TX | Frame &amp; Finish Remodeling',
 };
 const serviceDescriptions = new Set();
 for (const path of ['/', '/contact', '/privacy', '/terms', ...servicePages.map(([path]) => path)]) {
@@ -32,6 +32,9 @@ for (const path of ['/', '/contact', '/privacy', '/terms', ...servicePages.map((
     assert.ok(html.includes('href="https://creativecommons.org/licenses/by/4.0/"'));
   }
   assert.match(html, /<h1[^>]*>/);
+  assert.match(html, /class="header-location"[^>]*>[\s\S]*?Dallas, TX/);
+  assert.match(html, /class="header-hours"[^>]*>[\s\S]*?Mon-Sat 9 AM-7 PM<\/span>\s*<span[^>]*>Eastern Time/);
+  assert.doesNotMatch(html, /Delaware|Ohio|placeholder="43015"/);
   assert.doesNotMatch(html, /\(placeholder\)/);
   assert.equal(response.headers.has('Set-Cookie'), false);
   for (const field of html.match(/<input\b[^>]*\btype="tel"[^>]*>/g) ?? []) {
@@ -43,11 +46,18 @@ for (const path of ['/', '/contact', '/privacy', '/terms', ...servicePages.map((
     assert.match(html, /class="sticky-estimate" hidden/);
     const heroActions = html.match(/class="hero-cta-buttons">([\s\S]*?)<\/div>/)?.[1] ?? '';
     assert.match(heroActions, /quote-action[\s\S]*See Our Work/);
+    if (path === '/services/flooring') {
+      assert.doesNotMatch(html, /class="hero-trust-points"/);
+    } else {
+      assert.match(html, /See Our Work<\/a><\/div>[\s\S]*?class="hero-trust-points"/);
+    }
   } else {
     assert.doesNotMatch(html, /id="sticky-estimate-form"/);
   }
   if (path === '/') {
-    assert.match(html, /<h1[^>]*>Ohio’s Most Trusted Home Remodeling Experts Since 2010<\/h1>/);
+    assert.match(html, /<h1[^>]*>Home Remodeling<br\s*\/?>\s*Experts in <span[^>]*class="hero-city">Dallas<\/span>, TX<\/h1>/);
+    assert.match(html, /<h2[^>]*id="services-title"[^>]*>[\s\S]*?Remodeling <span[^>]*class="pencil-underline">Since 2005<\/span>/);
+    assert.match(html, /<meta name="description" content="[^"]*Dallas, TX/);
     assert.ok(html.includes('Planning a kitchen, bathroom, or flooring update? Tell us about your project and get a free quote.'));
     assert.match(html, /href="#why-choose-us">See Our Work<\/a>/);
     assert.match(html, /<section\b[^>]*\bid="why-choose-us"/);
@@ -55,15 +65,20 @@ for (const path of ['/', '/contact', '/privacy', '/terms', ...servicePages.map((
       assert.equal((html.match(new RegExp(`id="${formId}"`, 'g')) ?? []).length, 1);
     }
   }
+  if (path === '/contact') {
+    assert.match(html, /<p>Eastern Time<\/p>[\s\S]*?<dt>Monday-Saturday<\/dt><dd>9 AM-7 PM<\/dd>/);
+  }
   if (servicePage) {
     assert.equal((html.match(/id="hero-estimate-form"/g) ?? []).length, 1);
-    const title = `${servicePage[1]} in Delaware County, OH`;
+    const title = `${servicePage[1]} in Dallas, TX`;
     const category = path.split('/').at(-1);
-    assert.match(html, new RegExp(`<h1[^>]*>${title}</h1>`));
+    const heading = html.match(/<h1[^>]*>(.*?)<\/h1>/)?.[1] ?? '';
+    assert.equal(heading.replace(/<[^>]+>/g, ''), title);
+    assert.match(heading, /<span[^>]*class="hero-city">Dallas<\/span>/);
     const canonical = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
     assert.equal(new URL(canonical).pathname, path);
     const description = html.match(/<meta name="description" content="([^"]+)"/)?.[1];
-    assert.match(description ?? '', /Delaware County, OH\b/);
+    assert.match(description ?? '', /Dallas, TX\b/);
     serviceDescriptions.add(description);
     assert.match(html, new RegExp(`href="${path}" aria-current="page"`));
     assert.match(html, /href="#featured-work">See Our Work<\/a>/);

@@ -1,9 +1,10 @@
 import { For, Show } from 'solid-js';
-import { ContactLinks, ServiceAreaList } from '../components/Layout';
+import { ContactLinks, ServiceAreaList, useBusinessHoursTimeZone } from '../components/Layout';
 import { ContactForm } from '../components/estimate/Estimate';
 import { site } from '../shared/content';
 
 export function Contact() {
+  const timeZoneLabel = useBusinessHoursTimeZone('long');
   return <main id="main-content" tabindex="-1" class="shell support-page contact-page" data-reveal-group="" data-reveal-children="">
     <section class="contact-details" aria-labelledby="contact-title">
       <h1 id="contact-title">Contact Us</h1>
@@ -17,7 +18,7 @@ export function Contact() {
       </section>
       <section class="contact-hours" aria-labelledby="contact-hours-title">
         <h2 id="contact-hours-title">Business Hours</h2>
-        <p>Eastern Time</p>
+        <p>{timeZoneLabel()}</p>
         <dl>
           <For each={Object.entries(site.businessHours)}>{([day, hours]) => <div><dt>{day}</dt><dd>{hours}</dd></div>}</For>
         </dl>

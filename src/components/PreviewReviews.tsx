@@ -103,7 +103,7 @@ export default function PreviewReviews() {
 
       <Show when={!expanded()}>
         <div class="preview-reviews-action" data-reveal-group="">
-          <button class="button preview-reviews-more rounded" type="button" aria-controls="preview-reviews-grid" onClick={showAllReviews}>Load more <Icon name="plus" size={16} /></button>
+          <button class="button preview-reviews-more rounded" type="button" aria-controls="preview-reviews-grid" onClick={showAllReviews}>Load more <Icon name="plus" /></button>
         </div>
       </Show>
     </div>

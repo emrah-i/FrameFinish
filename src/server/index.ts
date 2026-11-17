@@ -67,7 +67,7 @@ app.post('/api/estimates', async context => {
   }
 
   const coverage = data.formId === estimateFormIds.contact ? 'review' : checkCoverage(data.zip, data.category);
-  if (coverage === 'outside') return context.json({ message: "This project type isn't currently listed for that ZIP code. Email us if you'd like to confirm coverage.", fields: { zip: 'Check the project ZIP code.' } }, 422);
+  if (coverage === 'outside') return context.json({ message: "This project type isn't currently listed for that ZIP code. Email us if you'd like to confirm coverage.", fields: { zip: 'Check the project ZIP code' } }, 422);
   if (!local) {
     const sent = await sendEstimateEmails(env, data, coverage);
     if (sent === 'changed') return context.json({ message: 'This request changed. Please submit it again.' }, 409);

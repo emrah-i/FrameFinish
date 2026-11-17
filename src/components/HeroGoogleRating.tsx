@@ -20,8 +20,8 @@ export default function HeroGoogleRating() {
     <span class="hero-google-rating" role="img" aria-label={`Rated ${value()} out of 5 stars on Google`}>
       <span class="hero-rating-stars" aria-hidden="true">
         <For each={stars}>{star => <span class="hero-rating-star" style={{ '--star-fill': `${Math.min(1, Math.max(0, value() - star + 1)) * 100}%` }}>
-          <Icon name="star" size={20} />
-          <span><Icon name="star" size={20} /></span>
+          <Icon name="star" />
+          <span><Icon name="star" /></span>
         </span>}</For>
       </span>
       <span aria-hidden="true">{value()} stars on</span>

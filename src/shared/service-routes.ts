@@ -7,8 +7,8 @@ export function serviceHref(id: string) {
 const serviceDetails = {
   kitchen: {
     navLabel: 'Kitchen',
-    pageTitle: 'Kitchen Remodeling in Delaware County, OH',
-    metaDescription: 'Plan a kitchen remodel in Delaware County, OH, with custom cabinetry, new countertops, lighting coordination, and layout changes. Request a free quote.',
+    pageTitle: 'Kitchen Remodeling in Dallas, TX',
+    metaDescription: 'Plan a kitchen remodel in Dallas, TX, with custom cabinetry, new countertops, lighting coordination, and layout changes. Request a free quote.',
     summary: 'Plan a kitchen remodel around the way you cook, gather, and move through your home.',
     highlights: [
       { title: 'Custom Kitchen Design and Layout Planning', description: 'Plan where you prep, cook, and clean up, and make room for how people move through the kitchen.' },
@@ -29,8 +29,8 @@ const serviceDetails = {
   },
   bathroom: {
     navLabel: 'Bathroom',
-    pageTitle: 'Bathroom Remodeling in Delaware County, OH',
-    metaDescription: 'Explore bathroom remodeling in Delaware County, OH, including custom layouts, vanity cabinetry, shower remodels, and tub-to-shower conversions.',
+    pageTitle: 'Bathroom Remodeling in Dallas, TX',
+    metaDescription: 'Explore bathroom remodeling in Dallas, TX, including custom layouts, vanity cabinetry, shower remodels, and tub-to-shower conversions.',
     summary: 'Plan a bathroom update for easier routines, more useful storage, and the finishes you want.',
     highlights: [
       { title: 'Custom Bathroom Remodel and Layout Planning', description: 'Plan fixture placement, storage, and clearances around how you use the bathroom each day.' },
@@ -51,8 +51,8 @@ const serviceDetails = {
   },
   flooring: {
     navLabel: 'Flooring',
-    pageTitle: 'Flooring in Delaware County, OH',
-    metaDescription: 'Plan flooring replacement in Delaware County, OH, from material selection and removal to subfloor preparation, installation, transitions, and trim.',
+    pageTitle: 'Flooring in Dallas, TX',
+    metaDescription: 'Plan flooring replacement in Dallas, TX, from material selection and removal to subfloor preparation, installation, transitions, and trim.',
     summary: 'Explore flooring updates for the rooms you use most, from replacing one worn surface to updating several rooms.',
     highlights: [
       { title: 'Material and Layout Planning', description: 'Compare flooring options for each room and plan how the layout will flow between spaces.' },

@@ -1,6 +1,7 @@
 .process-grid {
   --step-size: 56px;
   --step-gap: clamp(20px, 3vw, 40px);
+  --step-transition-duration: 450ms;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--step-gap);
@@ -25,7 +26,7 @@
   font-size: 1.25rem;
   font-weight: 700;
   transition-property: transform, box-shadow;
-  transition-duration: var(--animation-duration);
+  transition-duration: var(--step-transition-duration);
   transition-timing-function: ease-in-out;
 }
 
@@ -50,7 +51,7 @@
 .process-step:not(:last-child)::after {
   background: var(--color-orange);
   clip-path: inset(0 100% 0 0);
-  transition: clip-path var(--animation-duration) ease-in-out;
+  transition: clip-path var(--step-transition-duration) ease-in-out;
 }
 
 .process-step-complete:not(:last-child)::after { clip-path: inset(0); }

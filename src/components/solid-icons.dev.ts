@@ -1,6 +1,7 @@
 export { faBars } from '@fortawesome/free-solid-svg-icons/faBars';
 export { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
 export { faChevronRight } from '@fortawesome/free-solid-svg-icons/faChevronRight';
+export { faClock } from '@fortawesome/free-solid-svg-icons/faClock';
 export { faEnvelope } from '@fortawesome/free-solid-svg-icons/faEnvelope';
 export { faLocationDot } from '@fortawesome/free-solid-svg-icons/faLocationDot';
 export { faPhone } from '@fortawesome/free-solid-svg-icons/faPhone';

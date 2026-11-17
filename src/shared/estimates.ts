@@ -12,6 +12,7 @@ export const estimateFormIds = {
 export type EstimateFields = { name: string; email: string; phone: string; zip: string; category: string; description: string };
 export type FieldErrors = Partial<Record<keyof EstimateFields, string>>;
 export const descriptionLimit = 2000;
+export const zipPlaceholder = '75201';
 export const previousDisclosureVersion = 'intake-v2';
 export const reviewDisclosureVersion = 'intake-v3';
 export type EstimateRequest = EstimateFields & {
@@ -51,19 +52,19 @@ export function normalizeFields(input: Partial<Record<keyof EstimateFields, unkn
 
 export function validateFields(input: EstimateFields, contact = false): FieldErrors {
   const errors: FieldErrors = {};
-  if (!input.name || input.name.length > 100 || /[\r\n\t]/.test(input.name)) errors.name = 'Enter your name (up to 100 characters).';
-  if (input.email.length > 254 || !emailAddress.test(input.email)) errors.email = 'Enter a valid email address.';
+  if (!input.name || input.name.length > 100 || /[\r\n\t]/.test(input.name)) errors.name = 'Enter your name (up to 100 characters)';
+  if (input.email.length > 254 || !emailAddress.test(input.email)) errors.email = 'Enter a valid email address';
   const phoneDigits = input.phone.replace(/\D/g, '');
   const completePhone = phoneDigits.length === 10 ? !input.phone.startsWith('+') : /^1\d{10}$/.test(phoneDigits);
   if (input.phone.length > 30 || !/^(?:\+1)?[\d ().-]+$/.test(input.phone) || !completePhone) {
-    errors.phone = 'Enter a valid phone number.';
+    errors.phone = 'Enter a valid phone number';
   }
-  if (!/^\d{5}$/.test(input.zip)) errors.zip = contact ? 'Enter a five-digit ZIP code.' : 'Enter the five-digit ZIP code for your project.';
-  if ((!contact || input.category) && !categories.has(input.category)) errors.category = 'Select a project type or “Not sure”.';
+  if (!/^\d{5}$/.test(input.zip)) errors.zip = contact ? 'Enter a five-digit ZIP code' : 'Enter the five-digit ZIP code for your project';
+  if ((!contact || input.category) && !categories.has(input.category)) errors.category = 'Select a project type or “Not sure”';
   if (input.description.length < (contact ? 10 : 1) || input.description.length > descriptionLimit) {
-    errors.description = contact ? 'Enter a message in 10–2,000 characters.' : 'Describe your project in 1–2,000 characters.';
+    errors.description = contact ? 'Enter a message in 10-2,000 characters' : 'Describe your project in 1-2,000 characters';
   }
-  for (const name of fieldNames) if (control.test(input[name])) errors[name] = 'Remove unsupported characters.';
+  for (const name of fieldNames) if (control.test(input[name])) errors[name] = 'Remove unsupported characters';
   return errors;
 }
 

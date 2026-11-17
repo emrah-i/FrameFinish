@@ -10,7 +10,7 @@ test('maps server field errors and keeps the request reference during temporary 
   const rateLimited = 'Please wait a minute before trying again.';
   const unavailable = "We couldn't confirm your request. Please try again or contact us by email.";
   const responses = [
-    { status: 422, json: { message: outOfArea, fields: { zip: 'Check the project ZIP code.' } } },
+    { status: 422, json: { message: outOfArea, fields: { zip: 'Check the project ZIP code' } } },
     { status: 429, json: { message: rateLimited }, headers: { 'Retry-After': '60' } },
     { status: 503, json: { message: unavailable } },
   ];
@@ -46,6 +46,23 @@ test('maps server field errors and keeps the request reference during temporary 
   expect(posts.slice(1).map(post => post.key)).toEqual([accepted.key, accepted.key, accepted.key]);
   expect(new Set(posts.slice(1).map(post => post.marketingConsentedAt)).size).toBe(1);
   expect(accepted.marketingConsentedAt).toBeTruthy();
+});
+
+test('shows server validation in a tooltip without the generic banner', async ({ page }) => {
+  await page.route(estimateApi, route => route.fulfill({
+    status: 400,
+    json: { message: 'Check the highlighted fields.', fields: { zip: 'Enter the five-digit ZIP code for your project' } },
+  }));
+  await page.goto('/');
+  await page.locator('.hero-cta-buttons').getByRole('link', { name: quoteButton }).click();
+  const quote = dialog(page);
+  await fillRequest(quote);
+  await submitQuote(quote).click();
+  await expect(quote.getByRole('tooltip')).toHaveText('Enter the five-digit ZIP code for your project');
+  await expect(quote.getByRole('alert')).toHaveCount(0);
+  const zip = quote.getByLabel('Project ZIP Code');
+  await expect(zip).toBeFocused();
+  await expectInvalid(zip, /five-digit ZIP/);
 });
 
 test('recovers from a network failure and starts a fresh reference after a conflict', async ({ page }) => {
@@ -123,13 +140,14 @@ test('recovers from a widget load error, token expiry, and rejected verification
   expect(accepted.token).not.toBe(posts[0].token);
 });
 
-test('avoids duplicate sends and lets the quote dialog reopen while a request is pending and after it settles', async ({ page }) => {
+test('avoids duplicate sends and lets the quote dialog reopen while a request is pending and after it settles', async ({ page, isMobile }) => {
   const posts = watchSubmissions(page);
   let release!: () => void;
   const pending = new Promise<void>(resolve => { release = resolve; });
   await page.route(estimateApi, async route => { await pending; await route.continue(); });
   await page.goto('/');
-  const trigger = page.getByRole('banner').getByRole('link', { name: quoteButton }).first();
+  const entryPoint = isMobile ? page.locator('.hero-cta-buttons') : page.getByRole('banner');
+  const trigger = entryPoint.getByRole('link', { name: quoteButton }).first();
   const quote = dialog(page);
   const quoteForm = quote.getByRole('form', { name: 'Quote request' });
   const close = quote.getByRole('button', { name: 'Close quote request' });

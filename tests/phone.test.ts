@@ -24,8 +24,8 @@ describe('phone input', () => {
 
   it('requires a complete number in the supported +1 format', () => {
     const phoneError = (phone: string) => validateFields(normalizeFields({ phone })).phone;
-    expect(phoneError('+1 (614) 555-014')).toBe('Enter a valid phone number.');
+    expect(phoneError('+1 (614) 555-014')).toBe('Enter a valid phone number');
     expect(phoneError('+1 (614) 555-0142')).toBeUndefined();
-    expect(phoneError('+44 20 7946 0958')).toBe('Enter a valid phone number.');
+    expect(phoneError('+44 20 7946 0958')).toBe('Enter a valid phone number');
   });
 });
