@@ -35,7 +35,7 @@ export function ServiceAreaList() {
 
 function Wordmark() {
   return <a class="wordmark" href="/" aria-label={site.businessName + ' home'}>
-    <img src="/images/frame-finish-logo-white-cropped.png" width={1656} height={691} alt="" />
+    <img src="/images/frame-finish-logo-white-cropped.png" width={1941} height={810} alt="" />
   </a>;
 }
 

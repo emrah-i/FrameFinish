@@ -70,7 +70,7 @@ img { display: block; }
 .wordmark { display: inline-block; max-width: 100%; }
 /* Trim the transparent padding while keeping the visible artwork centered. */
 .wordmark img { height: auto; aspect-ratio: 16 / 5; object-fit: cover; object-position: center 20%; }
-.site-header .wordmark img { width: clamp(148px, 19vw, 216px); object-position: center 16%; }
+.site-header .wordmark img { width: clamp(148px, 19vw, 216px); object-position: center 36%; }
 .desktop-nav { display: flex; align-items: center; gap: clamp(20px, 3vw, 42px); font-size: 1rem; font-weight: 600; }
 .desktop-nav a { display: grid; min-height: 44px; place-items: center; }
 .header-actions { display: flex; align-items: center; gap: 10px; }

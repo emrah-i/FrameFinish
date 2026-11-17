@@ -117,15 +117,19 @@ test('keeps header navigation and the sticky quote usable across their breakpoin
   const desktop = header.getByRole('navigation', { name: 'Main navigation' });
   const stickyForm = header.getByRole('form', { name: 'Quick quote request' });
   const compact = header.locator('.sticky-estimate-compact').getByRole('link', { name: quoteButton });
-  const hours = header.locator('.contact-strip .header-hours');
+  const contactStrip = header.locator('.contact-strip');
+  const hours = contactStrip.locator('.header-hours');
 
   for (const width of [320, 680, 681, 768, 860, 861, 1099, 1100, 1440]) {
     await test.step(width + 'px', async () => {
       await page.setViewportSize({ width, height: 800 });
       await page.goto('/services/kitchen');
       const wordmark = header.locator('.wordmark img');
-      await expect(wordmark).toHaveJSProperty('naturalWidth', 1656);
+      await expect(wordmark).toHaveJSProperty('naturalWidth', 1941);
+      await expect(wordmark).toHaveCSS('object-position', '50% 36%');
       const logo = (await wordmark.boundingBox())!;
+      const navRow = (await header.locator('.header-inner').boundingBox())!;
+      expect(Math.abs(logo.y + logo.height / 2 - (navRow.y + navRow.height / 2))).toBeLessThan(0.25);
       if (width <= 860) {
         await expectInsideViewport(menu);
         await expect(desktop).toBeHidden();
@@ -152,6 +156,13 @@ test('keeps header navigation and the sticky quote usable across their breakpoin
       await expectInsideViewport(hours);
       const hoursBounds = (await hours.boundingBox())!;
       expect(Math.abs(hoursBounds.x + hoursBounds.width / 2 - width / 2)).toBeLessThan(1);
+      const stripBounds = (await contactStrip.boundingBox())!;
+      expect(stripBounds.height).toBe(36);
+      const stripCenter = stripBounds.y + stripBounds.height / 2;
+      for (const item of [contactStrip.locator('.header-location'), hours, contactStrip.locator('.header-phone')]) {
+        const { y, height } = (await item.boundingBox())!;
+        expect(Math.abs(y + height / 2 - stripCenter)).toBeLessThan(0.25);
+      }
       await expectInsideViewport(header.getByRole('link', { name: quoteButton }));
       await expectNoPageOverflow(page);
       await page.locator('#featured-work').scrollIntoViewIfNeeded();

@@ -8,23 +8,28 @@ const servicePages = [
   ['/services/bathroom', 'Bathroom Remodeling'],
   ['/services/flooring', 'Flooring'],
 ];
-const pageTitles = {
-  '/': 'Frame &amp; Finish Remodeling',
-  '/contact': 'Contact Us | Frame &amp; Finish Remodeling',
-  '/services/kitchen': 'Kitchen Remodeling in Dallas, TX | Frame &amp; Finish Remodeling',
-  '/services/bathroom': 'Bathroom Remodeling in Dallas, TX | Frame &amp; Finish Remodeling',
-  '/services/flooring': 'Flooring in Dallas, TX | Frame &amp; Finish Remodeling',
+const titleBrand = 'Frame &amp; Finish Home Remodeling';
+const pageTitlePrefixes = {
+  '/': '',
+  '/contact': 'Contact Us',
+  '/privacy': 'Privacy Policy',
+  '/terms': 'Terms and Conditions',
+  '/services/kitchen': 'Kitchen Remodeling in Dallas, TX',
+  '/services/bathroom': 'Bathroom Remodeling in Dallas, TX',
+  '/services/flooring': 'Flooring in Dallas, TX',
 };
+
+function assertPageTitles(html, title, path) {
+  assert.ok(html.includes(`<title>${title}</title>`), `Unexpected page title on ${path}`);
+  assert.ok(html.includes(`<meta property="og:title" content="${title}" />`), `Unexpected social title on ${path}`);
+}
+
 const serviceDescriptions = new Set();
-for (const path of ['/', '/contact', '/privacy', '/terms', ...servicePages.map(([path]) => path)]) {
+for (const [path, prefix] of Object.entries(pageTitlePrefixes)) {
   const response = await get(path);
   assert.equal(response.status, 200);
   const html = await response.text();
-  const pageTitle = pageTitles[path];
-  if (pageTitle) {
-    assert.ok(html.includes(`<title>${pageTitle}</title>`), `Unexpected page title on ${path}`);
-    assert.ok(html.includes(`<meta property="og:title" content="${pageTitle}" />`), `Unexpected social title on ${path}`);
-  }
+  assertPageTitles(html, prefix ? `${prefix} | ${titleBrand}` : titleBrand, path);
   assert.doesNotMatch(html, /<!--[^>]*Font Awesome/i);
   if (path === '/terms') {
     assert.match(html, /Fonticons, Inc\./);
@@ -117,8 +122,11 @@ for (const path of ['/', '/contact', '/privacy', '/terms', ...servicePages.map((
   assert.equal(response.headers.get('X-Robots-Tag'), 'noindex, nofollow');
 }
 assert.equal(serviceDescriptions.size, servicePages.length);
-assert.equal((await get('/missing-page')).status, 404);
-assert.equal((await get('/services/unknown')).status, 404);
+for (const path of ['/missing-page', '/services/unknown']) {
+  const response = await get(path);
+  assert.equal(response.status, 404);
+  assertPageTitles(await response.text(), `Page Not Found | ${titleBrand}`, path);
+}
 assert.equal((await get('/api/missing-endpoint')).status, 404);
 assert.equal((await get('/api/health')).status, 200);
 
