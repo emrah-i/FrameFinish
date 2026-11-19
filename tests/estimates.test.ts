@@ -37,11 +37,11 @@ describe('estimate intake', () => {
     expect(validateEstimate({ ...request, email: 'name+project@example.com', zip: '01234', category: 'unsure' })).toMatchObject({ ok: true, data: { zip: '01234', category: 'unsure' } });
   });
 
-  it('accepts a nonblank quote description through the shared character limit', () => {
-    for (const description of [' ', '\n\t', 'a'.repeat(descriptionLimit + 1)]) {
+  it('accepts empty quote descriptions and bounds legacy project details', () => {
+    for (const description of ['a'.repeat(descriptionLimit + 1)]) {
       expect(validateEstimate({ ...request, description })).toMatchObject({ ok: false, fields: { description: expect.any(String) } });
     }
-    for (const description of ['a', 'a'.repeat(descriptionLimit)]) {
+    for (const description of ['', ' ', '\n\t', 'a', 'a'.repeat(descriptionLimit)]) {
       expect(validateEstimate({ ...request, description }).ok).toBe(true);
     }
   });
@@ -89,17 +89,29 @@ describe('estimate intake', () => {
     }
   });
 
-  it('requires a five-digit ZIP for general contact messages and keeps the project type estimate-only', () => {
+  it('requires a five-digit ZIP for general contact messages and accepts project types alongside older Contact requests', () => {
     const contact = { ...request, source: 'contact', formId: estimateFormIds.contact, zip: '90210', category: '' };
     expect(validateEstimate(contact)).toMatchObject({ ok: true, data: { source: 'contact', formId: estimateFormIds.contact, zip: '90210' } });
     for (const zip of ['', '9021', '90A10']) {
       expect(validateEstimate({ ...contact, zip })).toMatchObject({ ok: false, fields: { zip: expect.any(String) } });
     }
     expect(validateEstimate({ ...contact, phone: '' })).toMatchObject({ ok: false, fields: { phone: expect.any(String) } });
-    expect(validateEstimate({ ...contact, category: 'kitchen' }).ok).toBe(false);
+    expect(validateEstimate({ ...contact, category: 'kitchen' }).ok).toBe(true);
+    expect(validateEstimate({ ...contact, category: 'other' }).ok).toBe(true);
     expect(validateEstimate({ ...contact, formId: estimateFormIds.modal }).ok).toBe(false);
     expect(validateEstimate({ ...contact, description: '' }).ok).toBe(false);
     expect(validateEstimate({ ...contact, description: '123456789' }).ok).toBe(false);
     expect(validateEstimate({ ...contact, description: '1234567890' }).ok).toBe(true);
   });
+});
+
+
+it('accepts direct hero and sticky requests and rejects mismatched form sources', () => {
+  for (const source of ['hero', 'services']) {
+    expect(validateEstimate({ ...request, source, formId: estimateFormIds.hero, category: 'other', description: '' }).ok).toBe(true);
+  }
+  expect(validateEstimate({ ...request, source: 'sticky', formId: estimateFormIds.sticky, description: '' }).ok).toBe(true);
+  expect(validateEstimate({ ...request, source: 'header', formId: estimateFormIds.hero }).ok).toBe(false);
+  expect(validateEstimate({ ...request, source: 'hero', formId: estimateFormIds.sticky }).ok).toBe(false);
+  expect(checkCoverage('43015', 'other')).toBe(checkCoverage('43015', 'unsure'));
 });

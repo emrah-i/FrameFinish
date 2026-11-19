@@ -61,15 +61,19 @@ function ReviewText(props: { text: string; id: string }) {
 export default function PreviewReviews() {
   const [expanded, setExpanded] = createSignal(false);
   let firstExtraReview: HTMLLIElement | undefined;
+  onMount(() => {
+    // The preview section loads after the browser initially resolves the fragment.
+    if (window.location.hash === '#customer-reviews') document.getElementById('customer-reviews')?.scrollIntoView();
+  });
 
   function showAllReviews() {
     setExpanded(true);
     queueMicrotask(() => firstExtraReview?.focus());
   }
 
-  return <section class="preview-reviews" aria-labelledby="preview-reviews-title">
+  return <section id="customer-reviews" class="preview-reviews" aria-labelledby="preview-reviews-title">
     <div class="section shell">
-      <SectionHeading id="preview-reviews-title" title="What Our Customers Say" />
+      <SectionHeading id="preview-reviews-title" title="What Homeowners Say About Our Services" />
 
       <div class="preview-reviews-summary rounded" data-reveal-group="">
         <div>

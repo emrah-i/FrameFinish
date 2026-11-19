@@ -1,6 +1,4 @@
 .remodel-gallery { min-width: 0; }
-.remodel-gallery .remodel-gallery-heading { margin-bottom: 12px; }
-.remodel-gallery-heading h2 { font-size: clamp(1.4rem, 2.65vw, 2.25rem); }
 
 @media (min-width: 781px) {
   .estimate-section-copy,

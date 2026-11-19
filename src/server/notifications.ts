@@ -19,7 +19,7 @@ export async function sendEstimateEmails(env: Env, data: EstimateRequest, covera
   const { RESEND_API_KEY: key, EMAIL_FROM: from, LEAD_EMAIL: recipient } = env;
   if (!key || !from || !recipient) return 'unavailable';
   const contact = data.formId === estimateFormIds.contact;
-  const category = displayedCategories.find(item => item.id === data.category)?.name ?? 'Not sure';
+  const category = displayedCategories.find(item => item.id === data.category)?.name ?? (data.category === 'other' ? 'Other' : 'Not sure');
   const intakeDisclosure = data.disclosureVersion === previousDisclosureVersion ? previousDisclosure
     : data.disclosureVersion === reviewDisclosureVersion ? reviewDisclosure : disclosure;
   const tags = [{ name: 'form_id', value: data.formId }, { name: 'source', value: data.source }];
@@ -31,8 +31,8 @@ export async function sendEstimateEmails(env: Env, data: EstimateRequest, covera
     `Email: ${data.email}`,
     `Phone: ${data.phone}`,
     `${contact ? 'ZIP code' : 'Project ZIP'}: ${data.zip}`,
+    ...(data.category ? [`Project type: ${category} [${data.category}]`] : []),
     ...(contact ? [] : [
-      `Project type: ${category} [${data.category}]`,
       `Coverage: ${coverage === 'covered' ? 'Covered' : 'Manual review'}`,
     ]),
     `Marketing email opt-in: ${data.marketingConsentVersion ? 'Yes' : 'No'}`,
@@ -42,9 +42,7 @@ export async function sendEstimateEmails(env: Env, data: EstimateRequest, covera
       `Consent timestamp (UTC): ${data.marketingConsentedAt ?? 'See email timestamp for this older form'}`,
     ] : []),
     `Intake disclosure (${data.disclosureVersion}): ${intakeDisclosure}`,
-    '',
-    contact ? 'Message:' : 'Project description:',
-    data.description,
+    ...(contact || data.description ? ['', contact ? 'Message:' : 'Project description:', data.description] : []),
   ].join('\n');
 
   try {

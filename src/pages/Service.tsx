@@ -39,7 +39,6 @@ export default function Service(props: { service: ServiceRoute }) {
             <div class="service-actions">
               <EstimateTrigger source="services" class="button button-primary" prefill={() => ({
                 category: props.service.id,
-                description: `I'm interested in the ${highlight.title} package.`,
               })}>
                 <span><QuoteLabel /><span class="sr-only"> for {highlight.title}</span></span>
               </EstimateTrigger>

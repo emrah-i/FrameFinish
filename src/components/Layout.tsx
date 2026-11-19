@@ -4,16 +4,20 @@ import { findServiceRoute, serviceRoutes } from '../shared/service-routes';
 import { EstimateTrigger } from './estimate/Estimate';
 import { StickyEstimate } from './estimate/StickyEstimate';
 import { Icon } from './Icon';
+import { useLocalPreviewReviews } from './LocalPreviewReviews';
 
 const navigation = [
   { label: 'Home', href: '/' },
   ...serviceRoutes.map(service => ({ label: service.navLabel, href: service.href })),
+  { label: 'About Us', href: '/about' },
   { label: 'Contact Us', href: '/contact' },
 ];
 
 const footerNavigation = [
-  { label: 'Our services', href: '/#services' },
-  { label: 'How it works', href: '/#process' },
+  { label: 'Our Services', href: '/#services' },
+  { label: 'Why Choose Us', href: '/#why-choose-us' },
+  { label: 'Our Process', href: '/#process' },
+  { label: 'Reviews', href: '/#customer-reviews', preview: true },
 ];
 
 const socialLinks = [
@@ -39,11 +43,12 @@ function Wordmark() {
   </a>;
 }
 
-function CompanyPhone(props: { class?: string }) {
-  return <Show when={companyPhoneHref} fallback={<Show when={site.phonePlaceholder}>
+function CompanyPhone(props: { class?: string; linkPlaceholder?: boolean }) {
+  const href = (props.class === 'header-phone' || props.linkPlaceholder) && companyPhone ? `tel:${companyPhone.replace(/[^+\d]/g, '')}` : companyPhoneHref;
+  return <Show when={href} fallback={<Show when={site.phonePlaceholder}>
     <span class={props.class}><Icon name="phone" /><span>{companyPhone}</span></span>
   </Show>}>
-    <a class={props.class} href={companyPhoneHref}><Icon name="phone" /><span>{site.phone}</span></a>
+    <a class={props.class} href={href}><Icon name="phone" /><span>{companyPhone}</span></a>
   </Show>;
 }
 
@@ -65,7 +70,7 @@ function HeaderHours(props: { timeZone: string }) {
 
 export function ContactLinks(props: { details?: boolean }) {
   return <div class="contact-links">
-    <CompanyPhone />
+    <CompanyPhone linkPlaceholder={!props.details} />
     <Show when={site.email}>
       <Show when={props.details} fallback={<a href={`mailto:${site.email}`}><Icon name="mail" /><span>{site.email}</span></a>}>
         <span><Icon name="mail" />{site.email}</span>
@@ -210,11 +215,12 @@ export function Header(props: { path: string }) {
 }
 
 export function Footer() {
+  const previewReviews = useLocalPreviewReviews();
   return <footer class="site-footer">
     <div class="shell" data-reveal-group="" data-reveal-children="">
       <div class="footer-main">
         <div class="footer-brand"><Wordmark /><p>Better Homes, Better Living</p><EstimateTrigger source="footer" class="button button-primary" /></div>
-        <div><h2>Explore</h2><ul><For each={footerNavigation}>{item => <li><a href={item.href}>{item.label}</a></li>}</For><li><a href="/contact">Contact</a></li></ul></div>
+        <div><h2>Explore</h2><ul><For each={footerNavigation.filter(item => !item.preview || previewReviews())}>{item => <li><a href={item.href}>{item.label}</a></li>}</For></ul></div>
         <div><h2>Remodeling</h2><ul><For each={serviceRoutes}>{item => <li><a href={item.href}>{item.navLabel}</a></li>}</For></ul></div>
         <div><h2>Service Areas</h2><ServiceAreaList /></div>
         <div><h2>Get in Touch</h2><ContactLinks /></div>

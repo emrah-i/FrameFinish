@@ -88,14 +88,11 @@ export const test = base.extend<{ browserChecks: void }>({
 export async function fillRequest(form: Locator, overrides: Partial<EstimateFields> = {}, contact = false) {
   const values = { ...homeowner, ...overrides };
   await form.getByLabel('Full Name').fill(values.name);
-  await form.getByLabel('Email', { exact: true }).fill(values.email);
-  await form.getByLabel('Phone', { exact: true }).fill(values.phone);
-  await form.getByLabel(contact ? 'ZIP Code' : 'Project ZIP Code').fill(values.zip);
+  await form.getByLabel('Email Address', { exact: true }).fill(values.email);
+  await form.getByLabel('Phone Number', { exact: true }).fill(values.phone);
+  await form.getByLabel('Project ZIP Code').fill(values.zip);
+  await project(form).selectOption(values.category);
   if (contact) await form.getByLabel('Message', { exact: true }).fill(values.description);
-  else {
-    await project(form).selectOption(values.category);
-    await description(form).fill(values.description);
-  }
 }
 
 export async function submitToPreview(page: Page, button: Locator) {
@@ -107,7 +104,7 @@ export async function submitToPreview(page: Page, button: Locator) {
   const payload = submission(response.request());
   expect(response.status()).toBe(202);
   expect(await response.json()).toEqual({ accepted: true, preview: true, reference: payload.key });
-  const confirmation = page.getByRole('status').filter({ hasText: /Preview Request Accepted/ });
+  const confirmation = page.getByRole('status').filter({ hasText: payload.key });
   await expect(confirmation).toBeVisible();
   await expect(confirmation).toContainText(payload.key);
   await expect(confirmation.getByRole('heading')).toBeFocused();

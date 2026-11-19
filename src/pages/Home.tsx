@@ -27,7 +27,7 @@ export default function Home() {
 
     <section id="services" class="home-services" aria-labelledby="services-title">
       <div class="section shell">
-        <SectionHeading id="services-title" title={<>Remodeling <span class="pencil-underline">Since 2005</span></>} />
+        <SectionHeading id="services-title" title={<>Remodeling <span class="pencil-underline">Since 2006</span></>} />
         <div class="service-grid">
           <For each={displayedCategories}>{item => <article id={item.id} class="service-card rounded" data-reveal-group="">
             <Photo image={item.photo} sizes="(max-width: 620px) 92vw, (max-width: 780px) 45vw, 31vw" />

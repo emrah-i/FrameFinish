@@ -38,7 +38,7 @@ export function Legal(props: { type: 'privacy' | 'terms' }) {
       <p>These terms apply to your use of this website and its inquiry forms. {site.legalName} operates this website as {site.businessName}.</p>
 
       <h2>Estimate Requests</h2>
-      <p>We review inquiries based on service area, project fit, and availability. Submitting an inquiry authorizes Frame &amp; Finish to respond by phone or email about your request. An inquiry does not book work or guarantee an estimate, price, or start date. Marketing email is a separate, optional choice. See our <a href="/privacy">Privacy Policy</a> for how we handle inquiry information.</p>
+      <p>We review inquiries based on service area, project fit, and availability. By submitting any form on this website, you authorize {site.businessName} to contact you by email or phone about your inquiry. An inquiry does not book work or guarantee an estimate, price, or start date. Marketing email is a separate, optional choice. See our <a href="/privacy">Privacy Policy</a> for how we handle inquiry information.</p>
 
       <h2>Project Agreements</h2>
       <p>Your remodeling agreement is with the parties identified in the agreement as providing the remodeling services. Those parties receive payment directly and are responsible for the work, job site management, and applicable warranties.</p>
@@ -61,6 +61,7 @@ export function Legal(props: { type: 'privacy' | 'terms' }) {
       <p>We receive information from you and may receive contact and project details from lead providers and referral partners. We may collect your name, email address, phone number, property address or ZIP code, and the project details you provide. We may also keep records of inquiries, communications, estimates, agreements, and your contact preferences or consent.</p>
 
       <h2>How We Use Information</h2>
+      <p>By submitting any form on this website, you authorize {site.businessName} to contact you by email or phone about your inquiry.</p>
       <p>We use this information to review inquiries, check service coverage, arrange visits, coordinate estimates and agreements, and communicate about your project. We also use information to maintain business records, prevent misuse, meet legal obligations, and resolve disputes. If you opt in to marketing email, we may send you news or offers. You can unsubscribe using the link in those messages or by emailing us.</p>
 
       <h2>Website Usage and Analytics</h2>

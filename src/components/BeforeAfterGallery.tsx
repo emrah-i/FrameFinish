@@ -21,10 +21,10 @@ export default function BeforeAfterGallery(props: { service?: ServiceRoute['id']
       return { ...photo, title: inEstimate ? stage : `${photo.title}: ${stage}` };
     }) : photos;
 
-  return <div class={inEstimate ? 'remodel-gallery' : undefined}
+  return <div id={inEstimate ? 'why-customers-return' : undefined} class={inEstimate ? 'remodel-gallery' : undefined}
     role={inEstimate ? 'group' : undefined} aria-labelledby={inEstimate ? 'remodel-gallery-title' : undefined}>
     <Show when={inEstimate}>
-      <SectionHeading id="remodel-gallery-title" title="Before &amp; After" class="remodel-gallery-heading" />
+      <SectionHeading id="remodel-gallery-title" title="Why Homeowners Keep Returning" class="remodel-gallery-heading" />
     </Show>
     <LoopingMediaCarousel variant={inEstimate ? 'comparisons' : 'services'}
       label={inEstimate && props.service ? 'Before and after photos for your quote' : 'Before and after remodels'} items={items}

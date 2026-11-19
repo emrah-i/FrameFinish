@@ -39,7 +39,7 @@ export const displayedCategories = projectCategories.filter(category =>
 export type Coverage = 'covered' | 'review' | 'outside';
 export function checkCoverage(zip: string, category: string): Coverage {
   if (preview) return 'review';
-  const matches = (area: ServiceArea) => category === 'unsure' || area.services.includes(category);
+  const matches = (area: ServiceArea) => category === 'other' || category === 'unsure' || area.services.includes(category);
   if (site.serviceAreas.some(area => matches(area) && area.partialZipCodes?.includes(zip))) return 'review';
   return site.serviceAreas.some(area => matches(area) && area.zipCodes.includes(zip)) ? 'covered' : 'outside';
 }

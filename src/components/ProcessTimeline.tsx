@@ -53,7 +53,7 @@ export default function ProcessTimeline() {
 
   return <section id="process" class="process" aria-labelledby="process-title">
     <div class="section shell">
-      <SectionHeading id="process-title" title="How It Works" />
+      <SectionHeading id="process-title" title="How Our Home Remodeling Process Works" />
       <ol ref={timeline} class="process-grid" role="list" data-reveal-group="">
         <For each={steps}>{(step, index) => <li class="process-step" classList={{ 'process-step-complete': index() < active() }}>
           <button type="button" class="process-step-number" aria-label={`Step ${index() + 1}, ${step.title}`}

@@ -11,6 +11,7 @@ const servicePages = [
 const titleBrand = 'Frame &amp; Finish Home Remodeling';
 const pageTitlePrefixes = {
   '/': '',
+  '/about': 'About Us',
   '/contact': 'Contact Us',
   '/privacy': 'Privacy Policy',
   '/terms': 'Terms and Conditions',
@@ -29,7 +30,7 @@ for (const [path, prefix] of Object.entries(pageTitlePrefixes)) {
   const response = await get(path);
   assert.equal(response.status, 200);
   const html = await response.text();
-  assertPageTitles(html, prefix ? `${prefix} | ${titleBrand}` : titleBrand, path);
+  assertPageTitles(html, prefix ? `${prefix} | ${titleBrand}` : 'Home Remodeling in Dallas, Texas | Frame and Finish Home Remodeling', path);
   assert.doesNotMatch(html, /<!--[^>]*Font Awesome/i);
   if (path === '/terms') {
     assert.match(html, /Fonticons, Inc\./);
@@ -51,20 +52,16 @@ for (const [path, prefix] of Object.entries(pageTitlePrefixes)) {
     assert.match(html, /class="sticky-estimate" hidden/);
     const heroActions = html.match(/class="hero-cta-buttons">([\s\S]*?)<\/div>/)?.[1] ?? '';
     assert.match(heroActions, /quote-action[\s\S]*See Our Work/);
-    if (path === '/services/flooring') {
-      assert.doesNotMatch(html, /class="hero-trust-points"/);
-    } else {
-      assert.match(html, /See Our Work<\/a><\/div>[\s\S]*?class="hero-trust-points"/);
-    }
+    assert.match(html, /See Our Work[\s\S]*?data-icon="chevron-right"[\s\S]*?<\/a><\/div>[\s\S]*?class="hero-trust-points"/);
   } else {
     assert.doesNotMatch(html, /id="sticky-estimate-form"/);
   }
   if (path === '/') {
     assert.match(html, /<h1[^>]*>Home Remodeling<br\s*\/?>\s*Experts in <span[^>]*class="hero-city">Dallas<\/span>, TX<\/h1>/);
-    assert.match(html, /<h2[^>]*id="services-title"[^>]*>[\s\S]*?Remodeling <span[^>]*class="pencil-underline">Since 2005<\/span>/);
+    assert.match(html, /<h2[^>]*id="services-title"[^>]*>[\s\S]*?Remodeling <span[^>]*class="pencil-underline">Since 2006<\/span>/);
     assert.match(html, /<meta name="description" content="[^"]*Dallas, TX/);
     assert.ok(html.includes('Planning a kitchen, bathroom, or flooring update? Tell us about your project and get a free quote.'));
-    assert.match(html, /href="#why-choose-us">See Our Work<\/a>/);
+    assert.match(html, /href="#why-choose-us">See Our Work[\s\S]*?data-icon="chevron-right"[\s\S]*?<\/a>/);
     assert.match(html, /<section\b[^>]*\bid="why-choose-us"/);
     for (const formId of ['hero-estimate-form', 'estimate-modal-form', 'bottom-estimate-form']) {
       assert.equal((html.match(new RegExp(`id="${formId}"`, 'g')) ?? []).length, 1);
@@ -86,7 +83,7 @@ for (const [path, prefix] of Object.entries(pageTitlePrefixes)) {
     assert.match(description ?? '', /Dallas, TX\b/);
     serviceDescriptions.add(description);
     assert.match(html, new RegExp(`href="${path}" aria-current="page"`));
-    assert.match(html, /href="#featured-work">See Our Work<\/a>/);
+    assert.match(html, /href="#featured-work">See Our Work[\s\S]*?data-icon="chevron-right"[\s\S]*?<\/a>/);
     let position = -1;
     for (const marker of ['What’s Included</h2>', 'id="featured-work"', 'Frequently Asked Questions</h2>', 'id="remodel-gallery-title"', 'id="bottom-estimate-form"', '<footer']) {
       const next = html.indexOf(marker);
@@ -113,7 +110,7 @@ for (const [path, prefix] of Object.entries(pageTitlePrefixes)) {
     assert.deepEqual(captions(featured), [before, after, before, after]);
     assert.deepEqual(imageSources(estimateGallery), galleryPhotos);
     assert.deepEqual(captions(estimateGallery), ['Before', 'After']);
-    assert.equal([...html.matchAll(/aria-expanded="false" aria-controls="service-faq-answer-/g)].length, 6);
+    assert.equal([...html.matchAll(/aria-expanded="false" aria-controls="service-faq-answer-/g)].length, 7);
     assert.match(html, new RegExp(`<option[^>]*value="${category}" selected>`));
     const redirect = await fetch(new URL(`${path}/`, url), { redirect: 'manual' });
     assert.ok([301, 302, 307, 308].includes(redirect.status));

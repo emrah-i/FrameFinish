@@ -31,8 +31,9 @@
 .service-faq-panel p { max-width: 65ch; padding-bottom: 16px; color: #52504d; }
 
 @media (min-width: 701px) and (max-width: 1023px) {
+  .service-page { --quote-form-width: calc((100vw - var(--page-gutter) - clamp(24px, 4vw, 48px)) / 2 + 20px); }
   .service-page-hero.quote-form-hero {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr) var(--quote-form-width);
     column-gap: clamp(24px, 4vw, 48px);
     padding-block: 16px;
   }

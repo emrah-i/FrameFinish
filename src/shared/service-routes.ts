@@ -25,6 +25,7 @@ const serviceDetails = {
       ['When should I choose appliances and lighting?', 'Share appliance dimensions and lighting ideas during layout planning. Clearances for appliance doors and the placement of lights over work surfaces can affect cabinet and electrical plans.'],
       ['What should I know before removing a kitchen wall?', 'Discuss whether the wall carries loads and whether it conceals plumbing, wiring, or ductwork. The team needs to review those conditions before confirming the scope.'],
       ['How much does it cost?', 'Cost depends on the kitchen’s size, cabinet and countertop selections, and whether layout changes require moving plumbing or electrical lines.'],
+      ['How long does a kitchen remodel take?', 'The timeline depends on the project scope, layout changes, material availability, and cabinetry selections and lead times. We confirm your project timeline after reviewing the scope.'],
     ],
   },
   bathroom: {
@@ -47,6 +48,7 @@ const serviceDetails = {
       ['Can I replace my bathtub with a shower?', 'A tub-to-shower conversion is an option to discuss. Share the existing tub size and your preferences for the entry and enclosure so the team can review the space and drain location.'],
       ['How do I start planning a primary bathroom remodel?', 'List the changes that would make your daily routine easier, such as more vanity space, a different shower layout, or better storage. Include whether you want to keep a separate tub.'],
       ['How much does it cost?', 'Cost depends on the bathroom’s size, tile and fixture selections, and whether the project involves rebuilding the shower or moving plumbing.'],
+      ['How long does a bathroom remodel take?', 'The timeline depends on layout changes, plumbing work, material availability, and tile installation. We confirm your project timeline after reviewing the scope.'],
     ],
   },
   flooring: {
@@ -69,6 +71,7 @@ const serviceDetails = {
       ['How do I plan flooring transitions and trim?', 'Start with the doorways and room edges where new flooring meets another surface. The materials and any difference in height help determine which transitions and trim will fit.'],
       ['What should I include in a flooring quote request?', 'Include your project ZIP code, the rooms you want to update, the current flooring, and any materials you are considering. Approximate measurements and known trouble spots also help.'],
       ['How much does it cost?', 'Cost depends on the square footage, flooring material, and how much existing flooring removal or subfloor preparation is needed.'],
+      ['How long does flooring installation take?', 'The timeline depends on the square footage, existing flooring removal, subfloor preparation, and the selected material’s installation requirements. We confirm your project timeline after reviewing the scope.'],
     ],
   },
 } as const;

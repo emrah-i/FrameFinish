@@ -15,7 +15,7 @@ const photos = displayedCategories.map(item => ({
 export default function WhyChooseUs() {
   return <section id="why-choose-us" class="why-choose-us" aria-labelledby="why-title" tabindex="-1">
     <div class="shell">
-      <SectionHeading id="why-title" title="Why Choose Us" />
+      <SectionHeading id="why-title" title="Why Homeowners Choose Us" />
       <Show when={photos.length > 0}>
         <LoopingMediaCarousel variant="services" label="Remodeling inspiration" items={photos}
           renderImage={item => <Photo image={item.image} sizes={serviceCarouselImageSizes} class="rounded" draggable={false} />} />

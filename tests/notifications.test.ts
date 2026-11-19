@@ -75,3 +75,16 @@ it('includes the contact ZIP in the internal notification', async () => {
   expect(lead.text).not.toContain('Project type:');
   expect(receipt.text).not.toContain('90210');
 });
+
+
+it('includes Contact project types and omits empty quote descriptions', async () => {
+  const fetch = vi.fn<typeof globalThis.fetch>(async () => Response.json({ data: [{ id: 'lead' }, { id: 'receipt' }] }));
+  vi.stubGlobal('fetch', fetch);
+  await sendEstimateEmails(env, { ...estimate, formId: estimateFormIds.contact, source: 'contact', category: 'other' }, 'review');
+  let [lead] = JSON.parse(fetch.mock.calls[0][1]?.body as string);
+  expect(lead.text).toContain('Project type: Other [other]');
+  expect(lead.text).toContain('Message:');
+  await sendEstimateEmails(env, { ...estimate, formId: estimateFormIds.hero, description: '' }, 'review');
+  [lead] = JSON.parse(fetch.mock.calls[1][1]?.body as string);
+  expect(lead.text).not.toContain('Project description:');
+});

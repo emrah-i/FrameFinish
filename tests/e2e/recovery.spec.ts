@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 import {
-  description, dialog, estimateApi, expectInvalid, fillRequest, formattedPhone, homeowner, marketing, project, quoteButton,
+  dialog, estimateApi, expectInvalid, fillRequest, formattedPhone, homeowner, marketing, project, quoteButton,
   submitQuote, submitToPreview, test, watchSubmissions, widgetScript,
 } from './fixtures';
 
@@ -24,7 +24,6 @@ test('maps server field errors and keeps the request reference during temporary 
   const alert = form.getByRole('alert');
   const zip = form.getByLabel('Project ZIP Code');
   await fillRequest(form, { zip: '90210' });
-  await marketing(form).check();
 
   await button.click();
   await expect(alert).toHaveText(outOfArea);
@@ -36,16 +35,16 @@ test('maps server field errors and keeps the request reference during temporary 
     await button.click();
     await expect(alert).toHaveText(message);
     await expect(alert).toBeFocused();
-    await expect(description(form)).toHaveValue(homeowner.description);
-    await expect(marketing(form)).toBeChecked();
+    await expect(project(form)).toHaveValue(homeowner.category);
+    await expect(marketing(form)).toHaveCount(0);
     await expect(button).toBeEnabled();
   }
   const accepted = await submitToPreview(page, button);
   expect(posts).toHaveLength(4);
   expect(posts[0].key).not.toBe(accepted.key);
   expect(posts.slice(1).map(post => post.key)).toEqual([accepted.key, accepted.key, accepted.key]);
-  expect(new Set(posts.slice(1).map(post => post.marketingConsentedAt)).size).toBe(1);
-  expect(accepted.marketingConsentedAt).toBeTruthy();
+  expect(posts.every(post => !('marketingConsentVersion' in post) && !('marketingConsentedAt' in post))).toBe(true);
+  expect(accepted).not.toHaveProperty('marketingConsentedAt');
 });
 
 test('shows server validation in a tooltip without the generic banner', async ({ page }) => {
@@ -75,7 +74,7 @@ test('recovers from a network failure and starts a fresh reference after a confl
   });
   await page.goto('/contact');
   const form = page.getByRole('form', { name: 'Send a message' });
-  const button = form.getByRole('button', { name: 'Send Message' });
+  const button = form.getByRole('button', { name: quoteButton });
   const alert = form.getByRole('alert');
   const message = form.getByLabel('Message', { exact: true });
   await fillRequest(form, {}, true);
@@ -94,7 +93,7 @@ test('recovers from a network failure and starts a fresh reference after a confl
   await page.reload();
   await expect(message).toHaveValue('');
   await expect(form.getByLabel('Full Name')).toHaveValue(homeowner.name);
-  await expect(form.getByLabel('ZIP Code')).toHaveValue(homeowner.zip);
+  await expect(form.getByLabel('Project ZIP Code')).toHaveValue(homeowner.zip);
 });
 
 test('recovers from a widget load error, token expiry, and rejected verification', async ({ page }) => {
@@ -106,7 +105,7 @@ test('recovers from a widget load error, token expiry, and rejected verification
   }) : route.continue());
   await page.goto('/contact');
   const form = page.getByRole('form', { name: 'Send a message' });
-  const button = form.getByRole('button', { name: 'Send Message' });
+  const button = form.getByRole('button', { name: quoteButton });
   const alert = form.getByRole('alert');
   const retry = form.getByRole('button', { name: 'Retry verification' });
   const complete = form.getByRole('button', { name: 'Complete test verification' });
@@ -172,14 +171,14 @@ test('avoids duplicate sends and lets the quote dialog reopen while a request is
     const response = page.waitForResponse(response => response.url().endsWith('/api/estimates'));
     release();
     expect((await response).status()).toBe(202);
-    await expect(description(page.locator('#bottom-estimate-form'))).toHaveValue('');
+    await expect(project(page.locator('#bottom-estimate-form'))).toHaveValue('');
     await trigger.click();
     await expect(quote.getByRole('status')).toContainText(posts[0].key);
     await quote.getByRole('button', { name: 'Done' }).click();
     await expect(trigger).toBeFocused();
     await trigger.click();
     await expect(quoteForm).toBeVisible();
-    await expect(description(quote)).toHaveValue('');
+    await expect(project(quote)).toHaveValue('');
     await expect(quote.getByLabel('Full Name')).toHaveValue(homeowner.name);
     expect(posts).toHaveLength(1);
   } finally {
@@ -191,24 +190,24 @@ test('shares drafts across pages and tabs and keeps newer edits after a successf
   await page.goto('/');
   const form = page.locator('#bottom-estimate-form');
   await fillRequest(form);
-  await page.getByRole('contentinfo').getByRole('link', { name: 'Contact', exact: true }).click();
+  await page.goto('/contact');
   await expect(page).toHaveURL(/\/contact$/);
   const contact = page.getByRole('form', { name: 'Send a message' });
   await expect(contact.getByLabel('Full Name')).toHaveValue(homeowner.name);
-  await expect(contact.getByLabel('Phone', { exact: true })).toHaveValue(formattedPhone);
+  await expect(contact.getByLabel('Phone Number', { exact: true })).toHaveValue(formattedPhone);
   const contactMessage = contact.getByLabel('Message', { exact: true });
   await expect(contactMessage).toHaveValue('');
   await contactMessage.fill('An unrelated question about opening hours.');
   await page.reload();
   await expect(contactMessage).toHaveValue('An unrelated question about opening hours.');
   await page.goto('/');
-  await expect(description(form)).toHaveValue(homeowner.description);
+  await expect(project(form)).toHaveValue('kitchen');
   await expect(project(form)).toHaveValue('kitchen');
 
   const otherPage = await context.newPage();
   await otherPage.goto('/');
   const otherForm = otherPage.locator('#bottom-estimate-form');
-  await expect(description(otherForm)).toHaveValue(homeowner.description);
+  await expect(project(otherForm)).toHaveValue('kitchen');
   let release!: () => void;
   const pending = new Promise<void>(resolve => { release = resolve; });
   await page.route(estimateApi, async route => { await pending; await route.continue(); });
@@ -217,16 +216,16 @@ test('shares drafts across pages and tabs and keeps newer edits after a successf
     await expect(form.locator('[data-test-verified]')).toHaveCount(1);
     await submitQuote(form).click();
     await expect(form.getByRole('button', { name: 'Sending…' })).toBeDisabled();
-    const updatedDescription = 'Use painted cabinets and keep the current lighting.';
-    await description(otherForm).fill(updatedDescription);
-    await expect(description(form)).toHaveValue(updatedDescription);
+    const updatedCategory = 'bathroom';
+    await project(otherForm).selectOption(updatedCategory);
+    await expect(project(form)).toHaveValue(updatedCategory);
     release();
     await expect(page.getByRole('status')).toContainText('Preview Request Accepted');
-    await expect(project(otherForm)).toHaveValue('');
+    await expect(project(otherForm)).toHaveValue(updatedCategory);
     await otherPage.reload();
-    await expect(description(otherForm)).toHaveValue(updatedDescription);
+    await expect(project(otherForm)).toHaveValue(updatedCategory);
     await expect(otherForm.getByLabel('Full Name')).toHaveValue(homeowner.name);
-    await expect(otherForm.getByLabel('Email', { exact: true })).toHaveValue(homeowner.email);
+    await expect(otherForm.getByLabel('Email Address', { exact: true })).toHaveValue(homeowner.email);
     await expect(otherForm.getByLabel('Project ZIP Code')).toHaveValue(homeowner.zip);
   } finally {
     release();

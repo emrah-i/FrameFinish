@@ -1,6 +1,7 @@
-import { For, Show } from 'solid-js';
+import { For } from 'solid-js';
 import { EstimateTrigger } from './estimate/Estimate';
 import HeroGoogleRating from './HeroGoogleRating';
+import { Icon } from './Icon';
 import type { ServiceRoute } from '../shared/service-routes';
 
 const trustPoints = [
@@ -25,24 +26,22 @@ export default function HeroActions(props: { workHref: string; category?: Servic
   }
 
   return <div class="hero-actions">
+    <HeroGoogleRating />
     <div class="hero-cta-buttons">
       <EstimateTrigger source={props.category ? 'services' : 'hero'} class="button button-primary"
         prefill={() => props.category ? { category: props.category } : {}} />
-      <a class="button button-secondary rounded" href={props.workHref} onClick={scrollToWork}>See Our Work</a>
+      <a class="button button-secondary rounded" href={props.workHref} onClick={scrollToWork}>See Our Work <Icon name="chevron-right" /></a>
     </div>
-    <HeroGoogleRating />
-    <Show when={!props.category || props.category === 'kitchen' || props.category === 'bathroom'}>
-      <ul class="hero-trust-points" role="list">
-        <For each={trustPoints}>{point => (
-          <li>
-            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d={point.path} />
-            </svg>
-            <span>{point.label}</span>
-          </li>
-        )}</For>
-      </ul>
-    </Show>
+    <ul class="hero-trust-points" role="list">
+      <For each={trustPoints}>{point => (
+        <li>
+          <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d={point.path} />
+          </svg>
+          <span>{point.label}</span>
+        </li>
+      )}</For>
+    </ul>
   </div>;
 }

@@ -23,7 +23,7 @@ function decode(raw: string | null): Entries | undefined {
     for (const field of fields) {
       const entry = record.fields[field];
       if (typeof entry?.value === 'string' && typeof entry.revision === 'string') {
-        entries[field] = { value: entry.value.slice(0, fieldLimits[field]), revision: entry.revision };
+        entries[field] = { value: field === 'category' && entry.value === 'unsure' ? 'other' : entry.value.slice(0, fieldLimits[field]), revision: entry.revision };
       }
     }
     const legacyName = entries.firstName ?? entries.lastName;

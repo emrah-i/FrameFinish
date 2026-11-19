@@ -18,7 +18,7 @@ export const reviewDisclosureVersion = 'intake-v3';
 export type EstimateRequest = EstimateFields & {
   key: string;
   source: EstimateSource;
-  formId: typeof estimateFormIds.modal | typeof estimateFormIds.inline | typeof estimateFormIds.contact | 'legacy-estimate-form';
+  formId: typeof estimateFormIds[keyof typeof estimateFormIds] | 'legacy-estimate-form';
   disclosureVersion: typeof disclosureVersion | typeof previousDisclosureVersion | typeof reviewDisclosureVersion;
   marketingConsentVersion?: typeof marketingConsentVersion;
   marketingConsentedAt?: string;
@@ -29,7 +29,7 @@ export type EstimateRequest = EstimateFields & {
 export const emptyEstimate: EstimateFields = { name: '', email: '', phone: '', zip: '', category: '', description: '' };
 export const fieldNames = Object.keys(emptyEstimate) as (keyof EstimateFields)[];
 const fields = new Set([...fieldNames, 'key', 'source', 'formId', 'disclosureVersion', 'marketingConsentVersion', 'marketingConsentedAt', 'token', 'website']);
-const categories = new Set(['unsure', ...displayedCategories.map(category => category.id)]);
+const categories = new Set(['other', 'unsure', ...displayedCategories.map(category => category.id)]);
 const sources = new Set<string>(estimateSources);
 const uuid = /^[a-f\d]{8}-[a-f\d]{4}-4[a-f\d]{3}-[89ab][a-f\d]{3}-[a-f\d]{12}$/i;
 const control = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/;
@@ -53,16 +53,16 @@ export function normalizeFields(input: Partial<Record<keyof EstimateFields, unkn
 export function validateFields(input: EstimateFields, contact = false): FieldErrors {
   const errors: FieldErrors = {};
   if (!input.name || input.name.length > 100 || /[\r\n\t]/.test(input.name)) errors.name = 'Enter your name (up to 100 characters)';
-  if (input.email.length > 254 || !emailAddress.test(input.email)) errors.email = 'Enter a valid email address';
   const phoneDigits = input.phone.replace(/\D/g, '');
   const completePhone = phoneDigits.length === 10 ? !input.phone.startsWith('+') : /^1\d{10}$/.test(phoneDigits);
   if (input.phone.length > 30 || !/^(?:\+1)?[\d ().-]+$/.test(input.phone) || !completePhone) {
     errors.phone = 'Enter a valid phone number';
   }
+  if (input.email.length > 254 || !emailAddress.test(input.email)) errors.email = 'Enter a valid email address';
   if (!/^\d{5}$/.test(input.zip)) errors.zip = contact ? 'Enter a five-digit ZIP code' : 'Enter the five-digit ZIP code for your project';
-  if ((!contact || input.category) && !categories.has(input.category)) errors.category = 'Select a project type or “Not sure”';
-  if (input.description.length < (contact ? 10 : 1) || input.description.length > descriptionLimit) {
-    errors.description = contact ? 'Enter a message in 10-2,000 characters' : 'Describe your project in 1-2,000 characters';
+  if (!categories.has(input.category)) errors.category = 'Select a project type or “Other”';
+  if (input.description.length < (contact ? 10 : 0) || input.description.length > descriptionLimit) {
+    errors.description = contact ? 'Enter a message in 10-2,000 characters' : 'Keep project details under 2,000 characters';
   }
   for (const name of fieldNames) if (control.test(input[name])) errors[name] = 'Remove unsupported characters';
   return errors;
@@ -83,14 +83,19 @@ export function validateEstimate(value: unknown): Validation {
   }
   const source = input.source as EstimateSource;
   const contact = source === 'contact' && input.formId === estimateFormIds.contact && version === disclosureVersion;
+  const directForm = version === disclosureVersion && (
+    (input.formId === estimateFormIds.hero && (source === 'hero' || source === 'services')) ||
+    (input.formId === estimateFormIds.sticky && source === 'sticky')
+  );
   const expectedForm = contact ? estimateFormIds.contact : source === 'inline' ? estimateFormIds.inline : estimateFormIds.modal;
   const formId = input.formId ?? (source === 'banner' ? 'legacy-estimate-form' : expectedForm);
-  if ((input.formId !== undefined && input.formId !== expectedForm) ||
-      ((source === 'inline' || source === 'sticky') && input.formId === undefined) ||
-      (contact && data.category)) {
+  if ((input.formId !== undefined && input.formId !== expectedForm && !directForm) ||
+      ((source === 'inline' || source === 'sticky') && input.formId === undefined)) {
     return { ok: false, message: 'Refresh the page before trying again.' };
   }
   const errors = validateFields(data, contact);
+  // Older Contact pages did not collect a project type.
+  if (contact && !data.category) delete errors.category;
   if (Object.keys(errors).length) return { ok: false, message: 'Check the highlighted fields.', fields: errors };
   const consent = input.marketingConsentVersion;
   if (consent !== undefined && (consent !== marketingConsentVersion ||

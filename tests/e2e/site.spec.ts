@@ -199,22 +199,20 @@ test('submits header, service, and footer quotes with their entry points', async
   await page.goto('/services/bathroom');
   await page.getByRole('link', { name: /Get a FREE quote for Tub-to-Shower Conversion/i }).click();
   await expect(project(quote)).toHaveValue('bathroom');
-  const suggested = "I'm interested in the Tub-to-Shower Conversion package.";
-  await expect(description(quote)).toHaveValue(suggested);
-  if (isMobile) await fillRequest(quote, { category: 'bathroom', description: suggested });
+  await expect(description(quote)).toHaveCount(0);
+  if (isMobile) await fillRequest(quote, { category: 'bathroom' });
   expect(await submitToPreview(page, submit)).toMatchObject({
-    source: 'services', formId: 'estimate-modal-form', category: 'bathroom', description: suggested,
+    source: 'services', formId: 'estimate-modal-form', category: 'bathroom', description: '',
   });
   await done.click();
 
   await page.goto('/services/flooring');
-  await submitQuote(page.locator('#hero-estimate-form')).click();
-  await expect(project(quote)).toHaveValue('flooring');
-  await description(quote).fill('Replace the flooring in the living room.');
-  expect(await submitToPreview(page, submit)).toMatchObject({
-    source: 'services', formId: 'estimate-modal-form', category: 'flooring',
+  const hero = page.locator('#hero-estimate-form');
+  await expect(project(hero)).toHaveValue('flooring');
+  await hero.getByLabel('Full Name').focus();
+  expect(await submitToPreview(page, submitQuote(hero))).toMatchObject({
+    source: 'services', formId: 'hero-estimate-form', category: 'flooring', description: '',
   });
-  await done.click();
 
   const footer = page.getByRole('contentinfo').getByRole('link', { name: quoteButton });
   await footer.click();
@@ -262,7 +260,7 @@ test('makes the process steps and additional preview reviews usable', async ({ p
   await page.goto('/');
   await page.getByRole('link', { name: 'See Our Work' }).click();
   await expect(page).toHaveURL(/#why-choose-us$/);
-  const process = page.getByRole('region', { name: 'How It Works' });
+  const process = page.getByRole('region', { name: 'How Our Home Remodeling Process Works' });
   const first = process.getByRole('button', { name: /Step 1/ });
   const third = process.getByRole('button', { name: /Step 3/ });
   await expect(first).toHaveAttribute('aria-current', 'step');
@@ -270,7 +268,7 @@ test('makes the process steps and additional preview reviews usable', async ({ p
   await expect(third).toHaveAttribute('aria-current', 'step');
   await expect(first).not.toHaveAttribute('aria-current', 'step');
 
-  const reviews = page.getByRole('region', { name: 'What Our Customers Say' });
+  const reviews = page.getByRole('region', { name: 'What Homeowners Say About Our Services' });
   const items = reviews.getByRole('listitem');
   const more = reviews.getByRole('button', { name: /Load more/ });
   await expect(items).toHaveCount(12);
@@ -290,7 +288,101 @@ test.describe('with JavaScript disabled', () => {
     await entryPoint.getByRole('link', { name: quoteButton }).click();
     await expect(page).toHaveURL(/\/contact#estimate-contact$/);
     await expect(page.getByText(/To send a message with JavaScript disabled, please email us/)).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Send Message' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: quoteButton })).toBeDisabled();
     await expect(page.getByRole('contentinfo').locator('a[href^="mailto:"]')).toBeVisible();
   });
+});
+
+
+test('keeps contact authorization in both policies and removes notices from every form', async ({ page }) => {
+  for (const path of ['/privacy', '/terms']) {
+    await page.goto(path);
+    await expect(page.getByRole('main')).toContainText('By submitting any form on this website, you authorize Frame & Finish Remodeling to contact you by email or phone about your inquiry.');
+    await expect(page.getByRole('contentinfo').getByRole('link', { name: 'Privacy Policy' })).toBeVisible();
+    await expect(page.getByRole('contentinfo').getByRole('link', { name: 'Terms and Conditions' })).toBeVisible();
+  }
+  await page.goto('/');
+  await page.locator('.hero-cta-buttons').getByRole('link', { name: quoteButton }).click();
+  await expect(dialog(page)).toBeVisible();
+  await expect(page.locator('form').filter({ hasText: 'By submitting this form' })).toHaveCount(0);
+  await expect(page.locator('form a[href="/privacy"]')).toHaveCount(0);
+});
+
+
+test('links Explore to the homepage sections in order', async ({ page }) => {
+  const labels = ['Our Services', 'Why Choose Us', 'Our Process', 'Reviews'];
+  const anchors = ['services', 'why-choose-us', 'process', 'customer-reviews'];
+  for (let index = 0; index < labels.length; index++) {
+    await page.goto('/services/kitchen');
+    const explore = page.getByRole('contentinfo').getByRole('heading', { name: 'Explore' }).locator('..');
+    await expect(explore.getByRole('link')).toHaveText(labels);
+    await explore.getByRole('link', { name: labels[index], exact: true }).click();
+    await expect(page).toHaveURL(new RegExp('/#' + anchors[index] + '$'));
+    const section = page.locator('#' + anchors[index]);
+    await expect(section).toBeInViewport();
+    await expect.poll(() => section.evaluate(element => {
+      const sticky = document.querySelector('.sticky-estimate:not([hidden])');
+      const bottom = sticky?.getBoundingClientRect().bottom ?? document.querySelector('.site-header')!.getBoundingClientRect().bottom;
+      return element.getBoundingClientRect().top >= bottom - 1;
+    })).toBe(true);
+  }
+});
+
+
+test('uses the Dallas homepage title and provides project-specific timeline FAQs', async ({ page }) => {
+  await page.goto('/');
+  await expect(page).toHaveTitle('Home Remodeling in Dallas, Texas | Frame and Finish Home Remodeling');
+  await expect(page.locator('#hero-title')).toHaveText('Home Remodeling Experts in Dallas, TX');
+  for (const [service, question] of [
+    ['kitchen', 'How long does a kitchen remodel take?'],
+    ['bathroom', 'How long does a bathroom remodel take?'],
+    ['flooring', 'How long does flooring installation take?'],
+  ]) {
+    await page.goto('/services/' + service);
+    const faq = page.getByRole('region', { name: 'Frequently Asked Questions' });
+    const button = faq.getByRole('button', { name: question, exact: true });
+    await expect(button).toHaveAttribute('aria-expanded', 'false');
+    await button.click();
+    await expect(button).toHaveAttribute('aria-expanded', 'true');
+    const panel = page.locator('#' + await button.getAttribute('aria-controls'));
+    await expect(panel).not.toHaveAttribute('inert', '');
+    await expect(panel).toContainText('We confirm your project timeline after reviewing the scope.');
+    await button.click();
+    await expect(button).toHaveAttribute('aria-expanded', 'false');
+    await expect(panel).toHaveAttribute('inert', '');
+  }
+});
+
+
+test('opens About before Contact in navigation and links its story to services and contact', async ({ page, isMobile }) => {
+  await page.goto('/');
+  const header = page.getByRole('banner');
+  if (isMobile) await header.getByRole('button', { name: 'Open menu' }).click();
+  const nav = header.getByRole('navigation', { name: isMobile ? 'Mobile navigation' : 'Main navigation' });
+  await expect(nav.getByRole('link')).toHaveText(['Home', 'Kitchen', 'Bathroom', 'Flooring', 'About Us', 'Contact Us']);
+  await nav.getByRole('link', { name: 'About Us', exact: true }).click();
+  await expect(page).toHaveURL(/\/about$/);
+  await expect(page).toHaveTitle('About Us | Frame & Finish Home Remodeling');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('About Us');
+  if (isMobile) await header.getByRole('button', { name: 'Open menu' }).click();
+  await expect(nav.getByRole('link', { name: 'About Us', exact: true })).toHaveAttribute('aria-current', 'page');
+  if (isMobile) await header.getByRole('button', { name: 'Close menu' }).click();
+  const main = page.getByRole('main');
+  await expect(main.locator('.hero')).toHaveCount(0);
+  await expect(main.getByRole('heading', { level: 2 })).toHaveText(['Our Story', 'Our Mission']);
+  await expect(main).toContainText("For over 20 years, we've helped homeowners throughout Dallas, Texas, and surrounding communities");
+  await expect(main.locator('.about-copy strong')).toHaveText(['Adam Blackwood', '2006', 'Dallas, Texas', 'kitchen remodeling', 'bathroom remodeling', 'flooring', 'Better Homes, Better Living']);
+  await expect(main).toContainText("My name is Adam Blackwood, and I'm proud to carry on the foundation my father established in 2006.");
+  await expect(main).not.toContainText('—');
+  await expect(main.getByRole('img')).toHaveAccessibleName('Walnut kitchen island with cream cabinetry and bronze pendant lights');
+  for (const [label, service] of [['kitchen remodeling', 'kitchen'], ['bathroom remodeling', 'bathroom'], ['flooring', 'flooring']]) {
+    await main.getByRole('link', { name: label, exact: true }).click();
+    await expect(page).toHaveURL(new RegExp('/services/' + service + '$'));
+    await page.goto('/about');
+  }
+  const connect = main.getByRole('link', { name: 'Connect With Us' });
+  await connect.hover();
+  await expect(connect).toHaveCSS('box-shadow', 'rgba(255, 96, 38, 0.5) 0px 0px 22px 0px');
+  await connect.click();
+  await expect(page).toHaveURL(/\/contact$/);
 });

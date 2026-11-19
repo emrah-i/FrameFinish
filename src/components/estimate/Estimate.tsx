@@ -1,5 +1,5 @@
 import { createContext, createEffect, createSignal, For, onCleanup, onMount, Show, useContext, type ParentProps } from 'solid-js';
-import { disclosure, disclosureVersion, displayedCategories, marketingConsentText, marketingConsentVersion, site } from '../../shared/content';
+import { disclosureVersion, displayedCategories, marketingConsentText, marketingConsentVersion, site } from '../../shared/content';
 import { descriptionLimit, estimateFormIds, normalizeFields, validateFields, zipPlaceholder, type EstimateFields, type EstimateSource, type FieldErrors } from '../../shared/estimates';
 import { Icon } from '../Icon';
 import FieldErrorTooltip from './FieldErrorTooltip';
@@ -7,7 +7,7 @@ import { FormDraftProvider, useFormDraft } from './form-draft';
 import { phonePlaceholder, rememberPhoneEdit, updatePhoneInput } from './phone';
 import { loadTurnstile } from './Turnstile';
 
-type ProjectPrefill = Partial<Pick<EstimateFields, 'category' | 'description'>>;
+type ProjectPrefill = Partial<Pick<EstimateFields, 'category'>>;
 type OpenEstimate = (opener: HTMLElement, source: EstimateSource, prefill?: ProjectPrefill) => boolean;
 const EstimateContext = createContext<OpenEstimate>();
 
@@ -29,10 +29,6 @@ export function MarketingEmailCheckbox(props: { checked: boolean; onChange: (che
   </label>;
 }
 
-export function FormDisclosure() {
-  return <p class="form-disclosure">{disclosure} <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>.</p>;
-}
-
 export function EstimateTrigger(props: ParentProps<{ source: EstimateSource; class: string; prefill?: () => ProjectPrefill; onOpen?: () => void }>) {
   const open = useEstimate();
   return <a class={`${props.class} quote-action rounded`} href="/contact#estimate-contact" aria-label={props.source === 'header' ? 'Get a FREE quote' : undefined} onClick={event => {
@@ -51,8 +47,8 @@ export function EstimateTrigger(props: ParentProps<{ source: EstimateSource; cla
 
 const fieldConfig = [
   { name: 'name', label: 'Full Name', type: 'text', autocomplete: 'name', maxlength: 100, placeholder: 'Jane Smith' },
-  { name: 'email', label: 'Email', type: 'email', autocomplete: 'email', maxlength: 254, placeholder: 'jane@example.com' },
-  { name: 'phone', label: 'Phone', type: 'tel', autocomplete: 'tel', maxlength: undefined, placeholder: phonePlaceholder },
+  { name: 'phone', label: 'Phone Number', type: 'tel', autocomplete: 'tel', maxlength: undefined, placeholder: phonePlaceholder },
+  { name: 'email', label: 'Email Address', type: 'email', autocomplete: 'email', maxlength: 254, placeholder: 'jane@example.com' },
   { name: 'zip', label: 'Project ZIP Code', type: 'text', autocomplete: 'postal-code', maxlength: 5, placeholder: zipPlaceholder },
 ] as const;
 
@@ -68,13 +64,12 @@ type ModalForm = {
   register: (controls: FormControls) => void;
 };
 
-function EstimateForm(props: { prefix: string; modal?: ModalForm; contact?: boolean; category?: string }) {
+export function EstimateForm(props: { prefix: string; modal?: ModalForm; contact?: boolean; category?: string; variant?: 'hero' | 'sticky' }) {
   const [ready, setReady] = createSignal(false);
   const draft = useFormDraft();
   const [suggested, setSuggested] = createSignal<ProjectPrefill>({});
-  const detailsField = props.contact ? 'message' : 'description';
-  const category = () => props.contact ? '' : suggested().category ?? draft.value('category') ?? props.category ?? '';
-  const description = () => draft.value(detailsField) ?? suggested().description ?? '';
+  const category = () => suggested().category ?? draft.value('category') ?? props.category ?? '';
+  const description = () => props.contact ? draft.value('message') ?? '' : '';
   const [errors, setErrors] = createSignal<FieldErrors>({});
   const [attempt, setAttempt] = createSignal(0);
   const [message, setMessage] = createSignal('');
@@ -89,11 +84,11 @@ function EstimateForm(props: { prefix: string; modal?: ModalForm; contact?: bool
   });
   const isActive = () => props.modal?.isOpen() ?? true;
   const id = (name: string) => `${props.prefix}-${name}`;
-  const formId = props.modal ? estimateFormIds.modal : props.contact ? estimateFormIds.contact : estimateFormIds.inline;
+  const formId = props.modal ? estimateFormIds.modal : props.contact ? estimateFormIds.contact : props.variant ? estimateFormIds[props.variant] : estimateFormIds.inline;
   let verification!: HTMLDivElement;
   let phoneInput!: HTMLInputElement;
   const editPhone = (event: Event) => draft.save({ phone: updatePhoneInput(phoneInput, event) });
-  let source: EstimateSource = props.contact ? 'contact' : 'inline';
+  let source: EstimateSource = props.contact ? 'contact' : props.variant === 'hero' ? (props.category ? 'services' : 'hero') : props.variant ?? 'inline';
   let latest: { key: string; fingerprint: string; consentedAt?: string } | undefined;
   let removeWidget: (() => void) | undefined;
   let verificationVersion = 0;
@@ -171,7 +166,7 @@ function EstimateForm(props: { prefix: string; modal?: ModalForm; contact?: bool
       if (fields[name] !== (draft.value(name) ?? '')) changes[name] = fields[name];
     }
     if (fields.category !== category()) changes.category = fields.category;
-    if (fields.description !== description()) changes[detailsField] = fields.description;
+    if (props.contact && fields.description !== description()) changes.message = fields.description;
     if (Object.keys(changes).length) draft.save(changes);
     const values = normalizeFields(fields);
     const fieldErrors = validateFields(values, props.contact);
@@ -244,14 +239,18 @@ function EstimateForm(props: { prefix: string; modal?: ModalForm; contact?: bool
     return <FieldErrorTooltip id={id(`${props.field}-error`)} message={errors()[props.field]} attempt={attempt()} />;
   }
 
-  return <div class={props.modal ? 'modal-estimate-form' : 'bottom-estimate-form'}>
+  return <div class={props.variant === 'hero' ? 'hero-estimate rounded' : props.variant === 'sticky' ? 'sticky-estimate-desktop shell' : props.modal ? 'modal-estimate-form' : 'bottom-estimate-form'}>
+    <Show when={props.variant === 'hero'}>
+      <h2 id="hero-estimate-title">Transform Your Home with Expert Remodeling Services</h2>
+      <p class="hero-estimate-intro">Tell us how to reach you, and we'll call to discuss your remodeling project.</p>
+    </Show>
     <Show when={!receipt()} fallback={<div class="estimate-feedback" role="status">
       <h3 id={id('receipt')} tabindex="-1">{receipt()?.preview ? 'Preview Request Accepted' : props.contact ? 'We Received Your Message' : 'We Received Your Request'}</h3>
       <p>{receipt()?.preview ? 'No notifications were sent and no request was stored.' : props.contact ? 'Our team will follow up with you.' : 'Our team will review your project and contact you about next steps.'}</p>
       <Show when={receipt()?.reference}><p>Reference <strong>{receipt()?.reference}</strong></p></Show>
       <Show when={props.modal}><button type="button" class="button button-primary rounded" onClick={() => props.modal?.close()}>Done</button></Show>
     </div>}>
-      <form id={formId} method="post" action="/api/estimates" aria-label={props.contact ? 'Send a message' : 'Quote request'} noValidate onSubmit={submit} onFocusIn={startVerification} aria-busy={pending()}>
+      <form id={formId} class={props.variant === 'sticky' ? 'sticky-estimate-form' : undefined} method="post" action="/api/estimates" aria-label={props.contact ? 'Send a message' : props.variant === 'sticky' ? 'Quick quote request' : props.variant === 'hero' ? 'Hero quote request' : 'Quote request'} noValidate onSubmit={submit} onFocusIn={startVerification} aria-busy={pending()}>
         <fieldset class="estimate-form-fields" disabled={!ready()}>
           <legend class="sr-only">Contact and Project Details</legend>
           <div class="dialog-fields">
@@ -262,15 +261,15 @@ function EstimateForm(props: { prefix: string; modal?: ModalForm; contact?: bool
                   draft.save({ [field.name]: event.currentTarget.value });
                 }
               }
-              return <div class="dialog-field">
-                <label for={id(field.name)}>{props.contact && field.name === 'zip' ? 'ZIP Code' : field.label}</label>
+              return <div class="dialog-field" classList={{ 'dialog-field-full': field.name === 'name' }}>
+                <label for={id(field.name)}>{field.label}</label>
                 <input ref={input => { if (field.name === 'phone') phoneInput = input; }} {...attrs(field.name)} class="rounded" type={field.type} autocomplete={field.autocomplete} maxlength={field.maxlength} inputmode={field.name === 'zip' ? 'numeric' : undefined} placeholder={field.placeholder} required value={draft.value(field.name) ?? ''}
                   onBeforeInput={field.name === 'phone' ? rememberPhoneEdit : undefined}
                   onChange={edit} onPaste={field.name === 'phone' ? editPhone : undefined} onInput={edit} />
                 <FieldError field={field.name} />
               </div>;
             }}</For>
-            <Show when={!props.contact}><div class="dialog-field dialog-field-full">
+            <div class="dialog-field">
               <label for={id('category')}>Project Type</label>
               <select {...attrs('category')} class="rounded" required onChange={event => {
                 draft.save({ category: event.currentTarget.value });
@@ -278,29 +277,27 @@ function EstimateForm(props: { prefix: string; modal?: ModalForm; contact?: bool
               }}>
                 <option value="" selected={category() === ''}>Select project type</option>
                 <For each={displayedCategories}>{item => <option value={item.id} selected={category() === item.id}>{item.name}</option>}</For>
-                <option value="unsure" selected={category() === 'unsure'}>Not sure</option>
+                <option value="other" selected={category() === 'other'}>Other</option>
               </select>
               <FieldError field="category" />
-            </div></Show>
-            <div class="dialog-field dialog-field-full">
-              <label for={id('description')}>{props.contact ? 'Message' : 'What would you like remodeled?'}</label>
+            </div>
+            <Show when={props.contact}><div class="dialog-field dialog-field-full">
+              <label for={id('description')}>Message</label>
               <div class="field-tooltip-anchor">
-                <textarea {...attrs('description', props.contact ? undefined : id('description-count'))} class="rounded" required rows={props.contact ? 6 : 3} maxlength={descriptionLimit} placeholder={props.contact ? 'Tell us how we can help.' : 'Tell us about the rooms and changes you have in mind.'} value={description()}
-                  onInput={event => draft.save({ [detailsField]: event.currentTarget.value })} />
+                <textarea {...attrs('description')} class="rounded" required rows={6} maxlength={descriptionLimit} placeholder="Tell us how we can help." value={description()}
+                  onInput={event => draft.save({ message: event.currentTarget.value })} />
                 <FieldError field="description" />
               </div>
-              <Show when={!props.contact}>
-                <p class="description-count" id={id('description-count')}>{description().length.toLocaleString('en-US')} / {descriptionLimit.toLocaleString('en-US')}</p>
-              </Show>
-            </div>
+            </div></Show>
           </div>
+          {/* Marketing emails are paused; uncomment to restore opt-in.
           <MarketingEmailCheckbox checked={consentedEmail() === email()} onChange={checked => setConsentedEmail(checked ? email() : undefined)} />
+          */}
           <div class="honeypot" aria-hidden="true"><label>Website<input class="rounded" tabindex="-1" name="website" autocomplete="off" /></label></div>
           <div ref={verification} />
           <Show when={verificationError()}><button type="button" class="text-action rounded" onClick={() => void showVerification()}>Retry verification</button></Show>
           <Show when={message()}><p class="form-error rounded" id={id('error')} tabindex="-1" role="alert">{message()}</p></Show>
-          <button type="submit" class="button button-primary rounded" classList={{ 'quote-action': !props.contact }} disabled={!ready() || pending()}>{pending() ? 'Sending…' : props.contact ? 'Send Message' : <QuoteLabel />} <Icon name="chevron-right" /></button>
-          <FormDisclosure />
+          <button type="submit" class="button button-primary quote-action rounded" disabled={!ready() || pending()}>{pending() ? 'Sending…' : <QuoteLabel />} <Icon name="chevron-right" /></button>
         </fieldset>
       </form>
     </Show>

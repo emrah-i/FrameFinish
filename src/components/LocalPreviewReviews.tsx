@@ -4,10 +4,14 @@ const PreviewReviews = import.meta.env.DEV || import.meta.env.MODE === 'local-pr
   ? lazy(() => import('./PreviewReviews'))
   : undefined;
 
-export default function LocalPreviewReviews() {
-  if (!PreviewReviews) return null;
-
+export function useLocalPreviewReviews() {
   const [visible, setVisible] = createSignal(false);
-  onMount(() => setVisible(['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)));
+  onMount(() => setVisible(!!PreviewReviews && ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)));
+  return visible;
+}
+
+export default function LocalPreviewReviews() {
+  const visible = useLocalPreviewReviews();
+  if (!PreviewReviews) return null;
   return <Show when={visible()}><PreviewReviews /></Show>;
 }
