@@ -31,8 +31,9 @@ const primaryArea = site.serviceAreas[0];
 const companyPhone = site.phone || (site.phonePlaceholder ? '740-555-0142' : '');
 const companyPhoneHref = site.phone && !site.phonePlaceholder ? `tel:${site.phone.replace(/[^+\d]/g, '')}` : undefined;
 
-export function ServiceAreaList() {
-  return <ul role="list"><For each={locations}>{location =>
+export function ServiceAreaList(props: { alphabetical?: boolean }) {
+  const items = props.alphabetical ? [...locations].sort((a, b) => a.city.localeCompare(b.city)) : locations;
+  return <ul role="list"><For each={items}>{location =>
     <li>{location.city}{location.state && `, ${location.state}`}</li>
   }</For></ul>;
 }
@@ -54,7 +55,7 @@ function CompanyPhone(props: { class?: string; linkPlaceholder?: boolean }) {
 
 function HeaderLocation() {
   return <Show when={primaryArea}>
-    <span class="header-location"><Icon name="pin" /><span>{primaryArea.shortName || primaryArea.name}</span></span>
+    <span class="header-location"><Icon name="pin" /><span>{site.address || primaryArea.shortName || primaryArea.name}</span></span>
   </Show>;
 }
 
@@ -76,7 +77,7 @@ export function ContactLinks(props: { details?: boolean }) {
         <span><Icon name="mail" />{site.email}</span>
       </Show>
     </Show>
-    <span><Icon name="pin" />{site.address || 'Dallas, TX'}</span>
+    <span><Icon name="pin" />{site.address || 'Camp Hill, PA'}</span>
   </div>;
 }
 
@@ -144,12 +145,17 @@ export function Header(props: { path: string }) {
       frame = undefined;
       const expandedBottom = navRow.getBoundingClientRect().bottom + (pastHero() ? contactStrip.offsetHeight : 0);
       const next = contactStrip.offsetHeight > 0 && hero.getBoundingClientRect().bottom <= expandedBottom + 72;
-      if (next === pastHero()) return;
       const focused = document.activeElement;
+      if (focused instanceof HTMLElement && focused.closest('.sticky-estimate') && !focused.getClientRects().length) {
+        const fallback = Array.from(header.querySelectorAll<HTMLElement>('.header-actions a.header-phone, .menu-toggle, .wordmark'))
+          .find(target => target.getClientRects().length);
+        fallback?.focus({ preventScroll: true });
+      }
+      if (next === pastHero()) return;
       setPastHero(next);
       if (next && focused?.closest('.header-estimate')) {
         const stickyActions = header.querySelectorAll<HTMLElement>('.sticky-estimate-form button[type="submit"], .sticky-estimate-compact a');
-        const target = menu() ? menuButton : Array.from(stickyActions).find(action => action.getClientRects().length);
+        const target = menu() ? menuButton : Array.from(stickyActions).find(action => action.getClientRects().length) ?? header.querySelector<HTMLElement>('.header-actions a.header-phone');
         target?.focus({ preventScroll: true });
       } else if (!next && focused?.closest('.sticky-estimate')) {
         header.querySelector<HTMLElement>('.header-estimate')?.focus({ preventScroll: true });
@@ -216,16 +222,40 @@ export function Header(props: { path: string }) {
 
 export function Footer() {
   const previewReviews = useLocalPreviewReviews();
+  let bottom!: HTMLDivElement;
+
+  onMount(() => {
+    const groups = Array.from(bottom.children) as HTMLElement[];
+    const updateRows = () => {
+      const centers = groups.map(group => group.offsetTop + group.offsetHeight / 2);
+      groups.forEach((group, index) => group.toggleAttribute('data-solo-row',
+        centers.every((center, other) => other === index || Math.abs(center - centers[index]) > 1)));
+    };
+    let frame: number | undefined;
+    const resize = new ResizeObserver(() => {
+      frame ??= requestAnimationFrame(() => {
+        frame = undefined;
+        updateRows();
+      });
+    });
+    resize.observe(bottom);
+    groups.forEach(group => resize.observe(group));
+    updateRows();
+    onCleanup(() => {
+      resize.disconnect();
+      if (frame !== undefined) cancelAnimationFrame(frame);
+    });
+  });
   return <footer class="site-footer">
     <div class="shell" data-reveal-group="" data-reveal-children="">
       <div class="footer-main">
         <div class="footer-brand"><Wordmark /><p>Better Homes, Better Living</p><EstimateTrigger source="footer" class="button button-primary" /></div>
-        <div><h2>Explore</h2><ul><For each={footerNavigation.filter(item => !item.preview || previewReviews())}>{item => <li><a href={item.href}>{item.label}</a></li>}</For></ul></div>
-        <div><h2>Remodeling</h2><ul><For each={serviceRoutes}>{item => <li><a href={item.href}>{item.navLabel}</a></li>}</For></ul></div>
-        <div><h2>Service Areas</h2><ServiceAreaList /></div>
-        <div><h2>Get in Touch</h2><ContactLinks /></div>
+        <div class="footer-service-areas"><h2>Service Areas</h2><ServiceAreaList alphabetical /></div>
+        <div class="footer-explore"><h2>Explore</h2><ul><For each={footerNavigation.filter(item => !item.preview || previewReviews())}>{item => <li><a href={item.href}>{item.label}</a></li>}</For></ul></div>
+        <div class="footer-remodeling"><h2>Remodeling</h2><ul><For each={serviceRoutes}>{item => <li><a href={item.href}>{item.navLabel}</a></li>}</For></ul></div>
+        <div class="footer-contact"><h2>Get in Touch</h2><ContactLinks /></div>
       </div>
-      <div class="footer-bottom">
+      <div ref={bottom} class="footer-bottom">
         <span>© {new Date().getUTCFullYear()} {site.legalName || site.businessName}</span>
         <div><a href="/privacy">Privacy Policy</a><a href="/terms">Terms and Conditions</a></div>
         <div class="footer-social">

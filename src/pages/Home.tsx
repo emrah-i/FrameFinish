@@ -18,8 +18,8 @@ export default function Home() {
     <section id="home-hero" class="hero home-hero quote-form-hero hero-wide-copy" aria-labelledby="hero-title" data-reveal-group="" data-reveal-children="">
       <Photo image={photos.kitchen} priority sizes="100vw" class="hero-photo" />
       <div class="hero-copy">
-        <h1 id="hero-title">Home Remodeling<br /> Experts in <span class="hero-city">Dallas</span>, TX</h1>
-        <p>Planning a kitchen, bathroom, or flooring update? Tell us about your project and get a free quote.</p>
+        <h1 id="hero-title">Home Remodeling<br /> Experts in <span class="hero-city">Harrisburg</span>, PA</h1>
+        <p>Planning a kitchen, bathroom, or basement update? Tell us about your project and get a free quote.</p>
         <HeroActions workHref="#why-choose-us" />
       </div>
       <HeroEstimate />
@@ -30,7 +30,7 @@ export default function Home() {
         <SectionHeading id="services-title" title={<>Remodeling <span class="pencil-underline">Since 2006</span></>} />
         <div class="service-grid">
           <For each={displayedCategories}>{item => <article id={item.id} class="service-card rounded" data-reveal-group="">
-            <Photo image={item.photo} sizes="(max-width: 620px) 92vw, (max-width: 780px) 45vw, 31vw" />
+            <Photo image={item.photo} sizes="(max-width: 800px) 92vw, 31vw" />
             <div class="service-body">
               <h3>{item.name}</h3>
               <p>{item.description}</p>

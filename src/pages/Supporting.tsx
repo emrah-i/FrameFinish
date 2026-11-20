@@ -8,10 +8,6 @@ export function Contact() {
   return <main id="main-content" tabindex="-1" class="shell support-page contact-page" data-reveal-group="" data-reveal-children="">
     <section class="contact-details" aria-labelledby="contact-title">
       <h1 id="contact-title">Contact Us</h1>
-      <section aria-labelledby="contact-areas-title">
-        <h2 id="contact-areas-title">Service Areas</h2>
-        <ServiceAreaList />
-      </section>
       <section aria-labelledby="contact-information-title">
         <h2 id="contact-information-title">Contact Information</h2>
         <ContactLinks details />
@@ -22,6 +18,10 @@ export function Contact() {
         <dl>
           <For each={Object.entries(site.businessHours)}>{([day, hours]) => <div><dt>{day}</dt><dd>{hours}</dd></div>}</For>
         </dl>
+      </section>
+      <section class="contact-service-areas" aria-labelledby="contact-areas-title">
+        <h2 id="contact-areas-title">Service Areas</h2>
+        <ServiceAreaList alphabetical />
       </section>
     </section>
     <section id="estimate-contact" class="contact-panel rounded" aria-label="Contact form">

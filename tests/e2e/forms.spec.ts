@@ -5,6 +5,7 @@ import {
 } from './fixtures';
 
 test('validates and directly submits the homepage hero', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
   const posts = watchSubmissions(page);
   await page.goto('/');
   const hero = page.locator('#hero-estimate-form');
@@ -66,18 +67,18 @@ test('directly submits all five fields from the desktop sticky form', async ({ p
       fields: { firstName: { value: 'Test', revision: '1' }, lastName: { value: 'Homeowner', revision: '1' } },
     }));
   });
-  await page.goto('/services/flooring');
+  await page.goto('/services/basement-remodeling');
   const sticky = page.locator('#sticky-estimate-form');
   await expect(sticky).toBeHidden();
   await page.locator('#featured-work').scrollIntoViewIfNeeded();
   await expect(sticky.getByLabel('Full Name')).toHaveValue(homeowner.name);
-  await expect(project(sticky)).toHaveValue('flooring');
+  await expect(project(sticky)).toHaveValue('basement');
   await submitQuote(sticky).click();
-  await expectInvalid(sticky.getByLabel('Project ZIP Code'), /five-digit ZIP/);
-  await fillRequest(sticky, { category: 'flooring' });
+  await expectInvalid(sticky.getByLabel('ZIP Code'), /five-digit ZIP/);
+  await fillRequest(sticky, { category: 'basement' });
   const payload = await submitToPreview(page, submitQuote(sticky));
   expect(payload).toMatchObject({
-    ...homeowner, category: 'flooring', description: '', phone: formattedPhone, source: 'sticky', formId: 'sticky-estimate-form',
+    ...homeowner, category: 'basement', description: '', phone: formattedPhone, source: 'sticky', formId: 'sticky-estimate-form',
   });
   expect(payload).not.toHaveProperty('marketingConsentVersion');
   await expect(dialog(page)).toBeHidden();
@@ -107,7 +108,7 @@ test('validates and submits a Contact message with a project type', async ({ pag
   await fillRequest(form, { description: 'Hi', zip: '90A10' }, true);
   await project(form).selectOption('');
   await button.click();
-  await expect(form.getByLabel('Project ZIP Code')).toBeFocused();
+  await expect(form.getByLabel('ZIP Code')).toBeFocused();
   await expectInvalid(project(form), /select a project type/i);
   await expectInvalid(form.getByLabel('Message', { exact: true }), /10-2,000 characters/);
   await fillRequest(form, { zip: '90210', category: 'other', description: 'Could you tell me more about scheduling?' }, true);

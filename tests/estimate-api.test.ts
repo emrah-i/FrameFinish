@@ -11,7 +11,7 @@ vi.mock('../src/content/site.json', async importOriginal => {
     url: 'https://frame.example.invalid',
     coverageProvisional: false,
     turnstileSiteKey: 'synthetic-public-key',
-    serviceAreas: [{ name: 'Test area', services: ['kitchen'], zipCodes: ['43015'], partialZipCodes: ['43016'] }],
+    serviceAreas: [{ name: 'Test area', services: ['kitchen', 'basement'] }],
   } };
 });
 
@@ -118,19 +118,7 @@ it('requests fresh verification if the provider is unreachable', async () => {
   expect(email).not.toHaveBeenCalled();
 });
 
-it('returns ZIP guidance for an out-of-area quote and accepts a general message from that ZIP', async () => {
-  const outside = { ...estimate, zip: '90210' };
-  const response = await submit(outside);
-  expect(response.status).toBe(422);
-  expect(await response.json()).toMatchObject({ fields: { zip: expect.stringMatching(/ZIP/) } });
-  expect(email).not.toHaveBeenCalled();
-
-  const contact = await submit({ ...outside, category: '', source: 'contact', formId: estimateFormIds.contact });
-  expect(contact.status).toBe(202);
-  expect(email).toHaveBeenCalledTimes(1);
-});
-
-it.each([['43015', 'Covered'], ['43016', 'Manual review']])('accepts ZIP %s with coverage %s', async (zip, coverage) => {
+it.each(['17101', '17011', '90210', '01234', '43015'])('forwards valid ZIP %s for manual review', async zip => {
   const response = await submit({ ...estimate, zip });
   expect(response.status).toBe(202);
   expect(await response.json()).toEqual({ accepted: true, preview: false, reference: estimate.key });
@@ -139,7 +127,7 @@ it.each([['43015', 'Covered'], ['43016', 'Manual review']])('accepts ZIP %s with
   expect(verificationRequest).toMatchObject({ secret: env.TURNSTILE_SECRET_KEY, response: estimate.token });
   expect(email).toHaveBeenCalledOnce();
   const [lead, receipt] = JSON.parse(String(email.mock.calls[0][1]?.body));
-  expect(lead.text).toContain(`Coverage: ${coverage}`);
+  expect(lead.text).toContain('Coverage: Manual review');
   expect(receipt.to).toEqual([estimate.email]);
 });
 
@@ -155,4 +143,17 @@ it.each([
   const result = await response.json();
   expect(result).toHaveProperty('message');
   expect(result).not.toHaveProperty('reference');
+});
+
+
+it('forwards basement remodeling inquiries from any valid ZIP and rejects retired flooring selections', async () => {
+  const response = await submit({ ...estimate, category: 'basement', zip: '90210' });
+  expect(response.status).toBe(202);
+  const [lead] = JSON.parse(String(email.mock.calls[0][1]?.body));
+  expect(lead.text).toContain('Basement Remodeling');
+  email.mockClear();
+  const retired = await submit({ ...estimate, category: 'flooring' });
+  expect(retired.status).toBe(400);
+  expect(await retired.json()).toMatchObject({ fields: { category: expect.any(String) } });
+  expect(email).not.toHaveBeenCalled();
 });

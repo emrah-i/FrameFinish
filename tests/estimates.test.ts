@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkCoverage, disclosureVersion, marketingConsentVersion } from '../src/shared/content';
+import { disclosureVersion, marketingConsentVersion } from '../src/shared/content';
 import { descriptionLimit, estimateFormIds, previousDisclosureVersion, reviewDisclosureVersion, validateEstimate } from '../src/shared/estimates';
 
 const request = {
@@ -50,11 +50,6 @@ describe('estimate intake', () => {
     expect(validateEstimate({ ...request, budget: '10,000' }).ok).toBe(false);
     expect(validateEstimate({ ...request, disclosureVersion: 'old' }).ok).toBe(false);
     expect(validateEstimate({ ...request, source: ' hero ' }).ok).toBe(false);
-  });
-
-  it('routes provisional coverage to review', () => {
-    expect(checkCoverage('43015', 'kitchen')).toBe('review');
-    expect(checkCoverage('43082', 'flooring')).toBe('review');
   });
 
   it('distinguishes the inline form from the sticky bar and accepts legacy sources', () => {
@@ -113,5 +108,4 @@ it('accepts direct hero and sticky requests and rejects mismatched form sources'
   expect(validateEstimate({ ...request, source: 'sticky', formId: estimateFormIds.sticky, description: '' }).ok).toBe(true);
   expect(validateEstimate({ ...request, source: 'header', formId: estimateFormIds.hero }).ok).toBe(false);
   expect(validateEstimate({ ...request, source: 'hero', formId: estimateFormIds.sticky }).ok).toBe(false);
-  expect(checkCoverage('43015', 'other')).toBe(checkCoverage('43015', 'unsure'));
 });

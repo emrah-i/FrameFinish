@@ -49,7 +49,7 @@ const fieldConfig = [
   { name: 'name', label: 'Full Name', type: 'text', autocomplete: 'name', maxlength: 100, placeholder: 'Jane Smith' },
   { name: 'phone', label: 'Phone Number', type: 'tel', autocomplete: 'tel', maxlength: undefined, placeholder: phonePlaceholder },
   { name: 'email', label: 'Email Address', type: 'email', autocomplete: 'email', maxlength: 254, placeholder: 'jane@example.com' },
-  { name: 'zip', label: 'Project ZIP Code', type: 'text', autocomplete: 'postal-code', maxlength: 5, placeholder: zipPlaceholder },
+  { name: 'zip', label: 'ZIP Code', type: 'text', autocomplete: 'postal-code', maxlength: 5, placeholder: zipPlaceholder },
 ] as const;
 
 type Receipt = { reference?: string; preview?: boolean };
@@ -275,7 +275,7 @@ export function EstimateForm(props: { prefix: string; modal?: ModalForm; contact
                 draft.save({ category: event.currentTarget.value });
                 setSuggested(project => ({ ...project, category: undefined }));
               }}>
-                <option value="" selected={category() === ''}>Select project type</option>
+                <option value="" selected={category() === ''}>Select Type</option>
                 <For each={displayedCategories}>{item => <option value={item.id} selected={category() === item.id}>{item.name}</option>}</For>
                 <option value="other" selected={category() === 'other'}>Other</option>
               </select>
@@ -298,6 +298,9 @@ export function EstimateForm(props: { prefix: string; modal?: ModalForm; contact
           <Show when={verificationError()}><button type="button" class="text-action rounded" onClick={() => void showVerification()}>Retry verification</button></Show>
           <Show when={message()}><p class="form-error rounded" id={id('error')} tabindex="-1" role="alert">{message()}</p></Show>
           <button type="submit" class="button button-primary quote-action rounded" disabled={!ready() || pending()}>{pending() ? 'Sending…' : <QuoteLabel />} <Icon name="chevron-right" /></button>
+          <Show when={props.variant !== 'sticky'}>
+            <p class="form-contact-notice">We’ll use the information you provide to contact you by phone or email about your inquiry.</p>
+          </Show>
         </fieldset>
       </form>
     </Show>

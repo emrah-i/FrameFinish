@@ -6,7 +6,7 @@
   "email": "sales@framefinishremodeling.com",
   "phone": "",
   "phonePlaceholder": true,
-  "address": "",
+  "address": "Camp Hill, PA",
   "businessHours": {
     "Monday-Saturday": "9 AM-7 PM"
   },
@@ -15,17 +15,55 @@
   "turnstileSiteKey": "",
   "serviceAreas": [
     {
-      "name": "Dallas, TX",
-      "zipCodes": [],
-      "partialZipCodes": [
-        "43015",
-        "43065",
-        "43082"
-      ],
+      "name": "Harrisburg, PA",
       "services": [
         "kitchen",
         "bathroom",
-        "flooring"
+        "basement"
+      ],
+      "locations": [
+        {
+          "city": "Harrisburg"
+        },
+        {
+          "city": "Mechanicsburg"
+        },
+        {
+          "city": "Camp Hill"
+        },
+        {
+          "city": "Carlisle"
+        },
+        {
+          "city": "Hershey"
+        },
+        {
+          "city": "Hummelstown"
+        },
+        {
+          "city": "Enola"
+        },
+        {
+          "city": "New Cumberland"
+        },
+        {
+          "city": "Lemoyne"
+        },
+        {
+          "city": "Wormleysburg"
+        },
+        {
+          "city": "Boiling Springs"
+        },
+        {
+          "city": "Linglestown"
+        },
+        {
+          "city": "Dillsburg"
+        },
+        {
+          "city": "Middletown"
+        }
       ]
     }
   ]

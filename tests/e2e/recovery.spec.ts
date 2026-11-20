@@ -22,7 +22,7 @@ test('maps server field errors and keeps the request reference during temporary 
   const form = page.locator('#bottom-estimate-form');
   const button = submitQuote(form);
   const alert = form.getByRole('alert');
-  const zip = form.getByLabel('Project ZIP Code');
+  const zip = form.getByLabel('ZIP Code');
   await fillRequest(form, { zip: '90210' });
 
   await button.click();
@@ -59,7 +59,7 @@ test('shows server validation in a tooltip without the generic banner', async ({
   await submitQuote(quote).click();
   await expect(quote.getByRole('tooltip')).toHaveText('Enter the five-digit ZIP code for your project');
   await expect(quote.getByRole('alert')).toHaveCount(0);
-  const zip = quote.getByLabel('Project ZIP Code');
+  const zip = quote.getByLabel('ZIP Code');
   await expect(zip).toBeFocused();
   await expectInvalid(zip, /five-digit ZIP/);
 });
@@ -93,7 +93,7 @@ test('recovers from a network failure and starts a fresh reference after a confl
   await page.reload();
   await expect(message).toHaveValue('');
   await expect(form.getByLabel('Full Name')).toHaveValue(homeowner.name);
-  await expect(form.getByLabel('Project ZIP Code')).toHaveValue(homeowner.zip);
+  await expect(form.getByLabel('ZIP Code')).toHaveValue(homeowner.zip);
 });
 
 test('recovers from a widget load error, token expiry, and rejected verification', async ({ page }) => {
@@ -226,7 +226,7 @@ test('shares drafts across pages and tabs and keeps newer edits after a successf
     await expect(project(otherForm)).toHaveValue(updatedCategory);
     await expect(otherForm.getByLabel('Full Name')).toHaveValue(homeowner.name);
     await expect(otherForm.getByLabel('Email Address', { exact: true })).toHaveValue(homeowner.email);
-    await expect(otherForm.getByLabel('Project ZIP Code')).toHaveValue(homeowner.zip);
+    await expect(otherForm.getByLabel('ZIP Code')).toHaveValue(homeowner.zip);
   } finally {
     release();
   }

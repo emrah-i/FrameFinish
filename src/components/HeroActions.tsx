@@ -7,7 +7,7 @@ import type { ServiceRoute } from '../shared/service-routes';
 const trustPoints = [
   { label: 'Licensed & Insured', path: 'M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z M9 12l2 2 4-4' },
   { label: 'FREE In-Home Estimates', path: 'M4 5h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z M8 3v4m8-4v4M3 10h18m-12 5 2 2 4-4' },
-  { label: 'Dallas-Based Team', path: 'm3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm6 11v-8h6v8' },
+  { label: 'Camp Hill-Based Team', path: 'm3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm6 11v-8h6v8' },
   { label: 'Fixed-Price Proposals', path: 'M6 2h8l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z M14 2v5h5m-11 8 2 2 4-4' },
 ];
 

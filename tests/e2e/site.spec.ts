@@ -20,7 +20,7 @@ test('shows matching business hours and accessible footer social links', async (
     await expect(header.locator('.mobile-call-action')).toHaveAttribute('href', '/contact');
   } else {
     await expect(location).toBeVisible();
-    await expect(location).toHaveText('Dallas, TX');
+    await expect(location).toHaveText('Camp Hill, PA');
     await expect(phone).toBeVisible();
   }
   await expect(hours).toHaveText('Mon-Sat 9 AM-7 PM EST');
@@ -36,8 +36,8 @@ test('shows matching business hours and accessible footer social links', async (
   }
   const contact = page.getByRole('region', { name: 'Contact Information' });
   for (const section of [contact, footer]) {
-    const address = section.locator('.contact-links > span').filter({ hasText: 'Dallas, TX' });
-    await expect(address).toHaveText('Dallas, TX');
+    const address = section.locator('.contact-links > span').filter({ hasText: 'Camp Hill, PA' });
+    await expect(address).toHaveText('Camp Hill, PA');
     await expect(address.locator('svg[data-icon="location-dot"]')).toBeVisible();
   }
   const terms = footer.getByRole('link', { name: 'Terms and Conditions' });
@@ -206,18 +206,19 @@ test('submits header, service, and footer quotes with their entry points', async
   });
   await done.click();
 
-  await page.goto('/services/flooring');
-  const hero = page.locator('#hero-estimate-form');
-  await expect(project(hero)).toHaveValue('flooring');
+  await page.goto('/services/basement-remodeling');
+  const formId = isMobile ? 'bottom-estimate-form' : 'hero-estimate-form';
+  const hero = page.locator('#' + formId);
+  await expect(project(hero)).toHaveValue('basement');
   await hero.getByLabel('Full Name').focus();
   expect(await submitToPreview(page, submitQuote(hero))).toMatchObject({
-    source: 'services', formId: 'hero-estimate-form', category: 'flooring', description: '',
+    source: isMobile ? 'inline' : 'services', formId, category: 'basement', description: '',
   });
 
   const footer = page.getByRole('contentinfo').getByRole('link', { name: quoteButton });
   await footer.click();
-  await fillRequest(quote, { category: 'flooring' });
-  expect(await submitToPreview(page, submit)).toMatchObject({ source: 'footer', formId: 'estimate-modal-form', category: 'flooring' });
+  await fillRequest(quote, { category: 'basement' });
+  expect(await submitToPreview(page, submit)).toMatchObject({ source: 'footer', formId: 'estimate-modal-form', category: 'basement' });
   await done.click();
   await expect(footer).toBeFocused();
 });
@@ -294,7 +295,7 @@ test.describe('with JavaScript disabled', () => {
 });
 
 
-test('keeps contact authorization in both policies and removes notices from every form', async ({ page }) => {
+test('keeps policy authorization and shows informational notices outside the sticky form', async ({ page }) => {
   for (const path of ['/privacy', '/terms']) {
     await page.goto(path);
     await expect(page.getByRole('main')).toContainText('By submitting any form on this website, you authorize Frame & Finish Remodeling to contact you by email or phone about your inquiry.');
@@ -306,6 +307,10 @@ test('keeps contact authorization in both policies and removes notices from ever
   await expect(dialog(page)).toBeVisible();
   await expect(page.locator('form').filter({ hasText: 'By submitting this form' })).toHaveCount(0);
   await expect(page.locator('form a[href="/privacy"]')).toHaveCount(0);
+  await expect(page.locator('#hero-estimate-form .form-contact-notice, #bottom-estimate-form .form-contact-notice, #estimate-modal-form .form-contact-notice')).toHaveCount(3);
+  await expect(page.locator('#sticky-estimate-form .form-contact-notice')).toHaveCount(0);
+  await page.goto('/contact');
+  await expect(page.locator('#contact-form .form-contact-notice')).toHaveText('We’ll use the information you provide to contact you by phone or email about your inquiry.');
 });
 
 
@@ -329,14 +334,14 @@ test('links Explore to the homepage sections in order', async ({ page }) => {
 });
 
 
-test('uses the Dallas homepage title and provides project-specific timeline FAQs', async ({ page }) => {
+test('uses the Harrisburg homepage title and provides project-specific timeline FAQs', async ({ page }) => {
   await page.goto('/');
-  await expect(page).toHaveTitle('Home Remodeling in Dallas, Texas | Frame and Finish Home Remodeling');
-  await expect(page.locator('#hero-title')).toHaveText('Home Remodeling Experts in Dallas, TX');
+  await expect(page).toHaveTitle('Home Remodeling in Harrisburg, Pennsylvania | Frame and Finish Home Remodeling');
+  await expect(page.locator('#hero-title')).toHaveText('Home Remodeling Experts in Harrisburg, PA');
   for (const [service, question] of [
     ['kitchen', 'How long does a kitchen remodel take?'],
     ['bathroom', 'How long does a bathroom remodel take?'],
-    ['flooring', 'How long does flooring installation take?'],
+    ['basement-remodeling', 'How long does basement remodeling take?'],
   ]) {
     await page.goto('/services/' + service);
     const faq = page.getByRole('region', { name: 'Frequently Asked Questions' });
@@ -359,7 +364,7 @@ test('opens About before Contact in navigation and links its story to services a
   const header = page.getByRole('banner');
   if (isMobile) await header.getByRole('button', { name: 'Open menu' }).click();
   const nav = header.getByRole('navigation', { name: isMobile ? 'Mobile navigation' : 'Main navigation' });
-  await expect(nav.getByRole('link')).toHaveText(['Home', 'Kitchen', 'Bathroom', 'Flooring', 'About Us', 'Contact Us']);
+  await expect(nav.getByRole('link')).toHaveText(['Home', 'Kitchen', 'Bathroom', 'Basements', 'About Us', 'Contact Us']);
   await nav.getByRole('link', { name: 'About Us', exact: true }).click();
   await expect(page).toHaveURL(/\/about$/);
   await expect(page).toHaveTitle('About Us | Frame & Finish Home Remodeling');
@@ -370,12 +375,12 @@ test('opens About before Contact in navigation and links its story to services a
   const main = page.getByRole('main');
   await expect(main.locator('.hero')).toHaveCount(0);
   await expect(main.getByRole('heading', { level: 2 })).toHaveText(['Our Story', 'Our Mission']);
-  await expect(main).toContainText("For over 20 years, we've helped homeowners throughout Dallas, Texas, and surrounding communities");
-  await expect(main.locator('.about-copy strong')).toHaveText(['Adam Blackwood', '2006', 'Dallas, Texas', 'kitchen remodeling', 'bathroom remodeling', 'flooring', 'Better Homes, Better Living']);
+  await expect(main).toContainText("For over 20 years, we've helped homeowners throughout Harrisburg, Pennsylvania, and surrounding communities");
+  await expect(main.locator('.about-copy strong')).toHaveText(['Adam Blackwood', '2006', 'Harrisburg, Pennsylvania', 'kitchen remodeling', 'bathroom remodeling', 'basement remodeling', 'Better Homes, Better Living']);
   await expect(main).toContainText("My name is Adam Blackwood, and I'm proud to carry on the foundation my father established in 2006.");
   await expect(main).not.toContainText('—');
   await expect(main.getByRole('img')).toHaveAccessibleName('Walnut kitchen island with cream cabinetry and bronze pendant lights');
-  for (const [label, service] of [['kitchen remodeling', 'kitchen'], ['bathroom remodeling', 'bathroom'], ['flooring', 'flooring']]) {
+  for (const [label, service] of [['kitchen remodeling', 'kitchen'], ['bathroom remodeling', 'bathroom'], ['basement remodeling', 'basement-remodeling']]) {
     await main.getByRole('link', { name: label, exact: true }).click();
     await expect(page).toHaveURL(new RegExp('/services/' + service + '$'));
     await page.goto('/about');
@@ -385,4 +390,79 @@ test('opens About before Contact in navigation and links its story to services a
   await expect(connect).toHaveCSS('box-shadow', 'rgba(255, 96, 38, 0.5) 0px 0px 22px 0px');
   await connect.click();
   await expect(page).toHaveURL(/\/contact$/);
+});
+
+
+test('redirects former flooring and basement finishing pages and shows basement examples without comparison claims', async ({ page, request }) => {
+  for (const path of ['/services/flooring', '/services/flooring/', '/services/basement-finishing', '/services/basement-finishing/']) {
+    const response = await request.get(path + '?source=legacy', { maxRedirects: 0 });
+    expect(response.status()).toBe(301);
+    expect(response.headers().location).toBe('/services/basement-remodeling?source=legacy');
+  }
+  await page.goto('/services/basement-remodeling');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Basement Remodeling in Harrisburg, PA');
+  await expect(page).toHaveTitle(/Basement Remodeling in Harrisburg, PA/);
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /basement remodeling in Harrisburg, PA/);
+  const ideas = page.getByRole('region', { name: 'Featured Work' });
+  await page.getByRole('link', { name: 'See Our Work' }).click();
+  await expect(page).toHaveURL(/#featured-work$/);
+  await expect(ideas).toBeInViewport();
+  for (const caption of await ideas.locator('figcaption').all()) await expect(caption).not.toHaveText(/Before|After/);
+  const photo = ideas.locator('button[tabindex="0"]');
+  await photo.focus();
+  await photo.press('ArrowRight');
+  await photo.press('Enter');
+  await expect(ideas.getByRole('dialog')).toBeVisible();
+  await page.keyboard.press('Escape');
+  for (const img of await ideas.locator('figure img').all()) {
+    await expect.poll(() => img.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
+    await expect(img).toHaveAttribute('src', /remodel-basement-/);
+  }
+});
+
+test('clears an obsolete flooring draft without losing contact details', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('frame-finish.form-draft', JSON.stringify({
+    version: 1, fields: { category: { value: 'flooring', revision: '1' }, name: { value: 'Saved Homeowner', revision: '1' }, email: { value: 'saved@example.invalid', revision: '1' } },
+  })));
+  await page.goto('/');
+  const hero = page.locator('#hero-estimate-form');
+  await expect(project(hero)).toHaveValue('');
+  await expect(hero.getByLabel('Full Name')).toHaveValue('Saved Homeowner');
+  await expect(hero.getByLabel('Email Address')).toHaveValue('saved@example.invalid');
+  await expect(project(hero).locator('option[value="flooring"]')).toHaveCount(0);
+  await expect(project(hero).locator('option[value="basement"]')).toHaveText('Basement Remodeling');
+});
+
+
+test('organizes Contact service areas after Business Hours and omits placeholder-generation labels', async ({ page }) => {
+  for (const width of [320, 780, 1100, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/contact');
+    const details = page.locator('.contact-details');
+    await expect(details.getByRole('heading', { level: 2 })).toHaveText(['Contact Information', 'Business Hours', 'Service Areas']);
+    const areas = page.getByRole('region', { name: 'Service Areas' });
+    await expect(areas.getByRole('listitem')).toHaveCount(14);
+    await expect(areas.getByRole('listitem')).toHaveText(['Boiling Springs', 'Camp Hill', 'Carlisle', 'Dillsburg', 'Enola', 'Harrisburg', 'Hershey', 'Hummelstown', 'Lemoyne', 'Linglestown', 'Mechanicsburg', 'Middletown', 'New Cumberland', 'Wormleysburg']);
+    await expect.poll(() => areas.locator('ul').evaluate(list => {
+      const items = Array.from(list.children).map(item => item.getBoundingClientRect());
+      return items.slice(0, 7).every((item, index) => item.left === items[0].left && (index === 0 || item.top > items[index - 1].top))
+        && items.slice(7).every((item, index) => item.left === items[7].left && (index === 0 || item.top > items[index + 6].top))
+        && items[7].left > items[0].left && items[7].top === items[0].top;
+    })).toBe(true);
+    const footerAreas = page.locator('.footer-service-areas');
+    await expect(footerAreas.getByRole('listitem')).toHaveText(['Boiling Springs', 'Camp Hill', 'Carlisle', 'Dillsburg', 'Enola', 'Harrisburg', 'Hershey', 'Hummelstown', 'Lemoyne', 'Linglestown', 'Mechanicsburg', 'Middletown', 'New Cumberland', 'Wormleysburg']);
+    await expect(footerAreas.locator('ul')).toHaveCSS('row-gap', '8px');
+    await expect(footerAreas.locator('ul')).toHaveCSS('column-gap', '4px');
+    await expect.poll(() => footerAreas.locator('ul').evaluate(list => {
+      const items = Array.from(list.children).map(item => item.getBoundingClientRect());
+      const columns = [...new Set(items.map(item => item.left))].map(left => items.filter(item => item.left === left));
+      return columns.length === 2 &&
+        columns.every(column => column.every((item, index) => !index || item.top > column[index - 1].top));
+    })).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
+  }
+  for (const path of ['/', '/services/basement-remodeling']) {
+    await page.goto(path);
+    await expect(page.getByRole('main')).not.toContainText(/AI-generated|AI generated|examples for inspiration/i);
+  }
 });

@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { bodyLimit } from 'hono/body-limit';
-import { checkCoverage, preview, site } from '../shared/content';
-import { estimateFormIds, validateEstimate } from '../shared/estimates';
+import { preview, site } from '../shared/content';
+import { validateEstimate } from '../shared/estimates';
 import type { Env } from './env';
 import { sendEstimateEmails } from './notifications';
 
@@ -25,6 +25,12 @@ app.use('*', async (context, next) => {
     context.header('Cache-Control', 'no-store');
     context.header('X-Content-Type-Options', 'nosniff');
   }
+});
+
+app.on('GET', ['/services/flooring', '/services/flooring/', '/services/basement-finishing', '/services/basement-finishing/'], context => {
+  const target = new URL(context.req.url);
+  target.pathname = '/services/basement-remodeling';
+  return context.redirect(target.pathname + target.search, 301);
 });
 
 app.get('/api/health', context => context.json({ ok: true }));
@@ -66,10 +72,8 @@ app.post('/api/estimates', async context => {
     if (!valid) return context.json({ message: 'Please complete verification again.', refreshToken: true }, 403);
   }
 
-  const coverage = data.formId === estimateFormIds.contact ? 'review' : checkCoverage(data.zip, data.category);
-  if (coverage === 'outside') return context.json({ message: "This project type isn't currently listed for that ZIP code. Email us if you'd like to confirm coverage.", fields: { zip: 'Check the project ZIP code' } }, 422);
   if (!local) {
-    const sent = await sendEstimateEmails(env, data, coverage);
+    const sent = await sendEstimateEmails(env, data, 'review');
     if (sent === 'changed') return context.json({ message: 'This request changed. Please submit it again.' }, 409);
     if (sent !== 'accepted') return context.json({ message: "We couldn't confirm your request. Please try again or contact us by email." }, 503);
   }

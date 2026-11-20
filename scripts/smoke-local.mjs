@@ -6,7 +6,7 @@ const get = (path) => fetch(new URL(path, url));
 const servicePages = [
   ['/services/kitchen', 'Kitchen Remodeling'],
   ['/services/bathroom', 'Bathroom Remodeling'],
-  ['/services/flooring', 'Flooring'],
+  ['/services/basement-remodeling', 'Basement Remodeling'],
 ];
 const titleBrand = 'Frame &amp; Finish Home Remodeling';
 const pageTitlePrefixes = {
@@ -15,9 +15,9 @@ const pageTitlePrefixes = {
   '/contact': 'Contact Us',
   '/privacy': 'Privacy Policy',
   '/terms': 'Terms and Conditions',
-  '/services/kitchen': 'Kitchen Remodeling in Dallas, TX',
-  '/services/bathroom': 'Bathroom Remodeling in Dallas, TX',
-  '/services/flooring': 'Flooring in Dallas, TX',
+  '/services/kitchen': 'Kitchen Remodeling in Harrisburg, PA',
+  '/services/bathroom': 'Bathroom Remodeling in Harrisburg, PA',
+  '/services/basement-remodeling': 'Basement Remodeling in Harrisburg, PA',
 };
 
 function assertPageTitles(html, title, path) {
@@ -30,7 +30,7 @@ for (const [path, prefix] of Object.entries(pageTitlePrefixes)) {
   const response = await get(path);
   assert.equal(response.status, 200);
   const html = await response.text();
-  assertPageTitles(html, prefix ? `${prefix} | ${titleBrand}` : 'Home Remodeling in Dallas, Texas | Frame and Finish Home Remodeling', path);
+  assertPageTitles(html, prefix ? `${prefix} | ${titleBrand}` : 'Home Remodeling in Harrisburg, Pennsylvania | Frame and Finish Home Remodeling', path);
   assert.doesNotMatch(html, /<!--[^>]*Font Awesome/i);
   if (path === '/terms') {
     assert.match(html, /Fonticons, Inc\./);
@@ -38,7 +38,7 @@ for (const [path, prefix] of Object.entries(pageTitlePrefixes)) {
     assert.ok(html.includes('href="https://creativecommons.org/licenses/by/4.0/"'));
   }
   assert.match(html, /<h1[^>]*>/);
-  assert.match(html, /class="header-location"[^>]*>[\s\S]*?Dallas, TX/);
+  assert.match(html, /class="header-location"[^>]*>[\s\S]*?Camp Hill, PA/);
   assert.match(html, /class="header-hours"[^>]*>[\s\S]*?Mon-Sat 9 AM-7 PM<\/span>\s*<span[^>]*>Eastern Time/);
   assert.doesNotMatch(html, /Delaware|Ohio|placeholder="43015"/);
   assert.doesNotMatch(html, /\(placeholder\)/);
@@ -51,17 +51,17 @@ for (const [path, prefix] of Object.entries(pageTitlePrefixes)) {
     assert.equal((html.match(/id="sticky-estimate-form"/g) ?? []).length, 1);
     assert.match(html, /class="sticky-estimate" hidden/);
     const heroActions = html.match(/class="hero-cta-buttons">([\s\S]*?)<\/div>/)?.[1] ?? '';
-    assert.match(heroActions, /quote-action[\s\S]*See Our Work/);
-    assert.match(html, /See Our Work[\s\S]*?data-icon="chevron-right"[\s\S]*?<\/a><\/div>[\s\S]*?class="hero-trust-points"/);
+    assert.match(heroActions, /quote-action[\s\S]*(?:See Our Work|Explore Basement Ideas)/);
+    assert.match(html, /(?:See Our Work|Explore Basement Ideas)[\s\S]*?data-icon="chevron-right"[\s\S]*?<\/a><\/div>[\s\S]*?class="hero-trust-points"/);
   } else {
     assert.doesNotMatch(html, /id="sticky-estimate-form"/);
   }
   if (path === '/') {
-    assert.match(html, /<h1[^>]*>Home Remodeling<br\s*\/?>\s*Experts in <span[^>]*class="hero-city">Dallas<\/span>, TX<\/h1>/);
+    assert.match(html, /<h1[^>]*>Home Remodeling<br\s*\/?>\s*Experts in <span[^>]*class="hero-city">Harrisburg<\/span>, PA<\/h1>/);
     assert.match(html, /<h2[^>]*id="services-title"[^>]*>[\s\S]*?Remodeling <span[^>]*class="pencil-underline">Since 2006<\/span>/);
-    assert.match(html, /<meta name="description" content="[^"]*Dallas, TX/);
-    assert.ok(html.includes('Planning a kitchen, bathroom, or flooring update? Tell us about your project and get a free quote.'));
-    assert.match(html, /href="#why-choose-us">See Our Work[\s\S]*?data-icon="chevron-right"[\s\S]*?<\/a>/);
+    assert.match(html, /<meta name="description" content="[^"]*Harrisburg, PA/);
+    assert.ok(html.includes('Planning a kitchen, bathroom, or basement update? Tell us about your project and get a free quote.'));
+    assert.match(html, /href="#why-choose-us">[\s\S]*?See Our Work[\s\S]*?data-icon="chevron-right"[\s\S]*?<\/a>/);
     assert.match(html, /<section\b[^>]*\bid="why-choose-us"/);
     for (const formId of ['hero-estimate-form', 'estimate-modal-form', 'bottom-estimate-form']) {
       assert.equal((html.match(new RegExp(`id="${formId}"`, 'g')) ?? []).length, 1);
@@ -72,18 +72,18 @@ for (const [path, prefix] of Object.entries(pageTitlePrefixes)) {
   }
   if (servicePage) {
     assert.equal((html.match(/id="hero-estimate-form"/g) ?? []).length, 1);
-    const title = `${servicePage[1]} in Dallas, TX`;
-    const category = path.split('/').at(-1);
+    const title = `${servicePage[1]} in Harrisburg, PA`;
+    const category = path.endsWith('/basement-remodeling') ? 'basement' : path.split('/').at(-1);
     const heading = html.match(/<h1[^>]*>(.*?)<\/h1>/)?.[1] ?? '';
     assert.equal(heading.replace(/<[^>]+>/g, ''), title);
-    assert.match(heading, /<span[^>]*class="hero-city">Dallas<\/span>/);
+    assert.match(heading, /<span[^>]*class="hero-city">Harrisburg<\/span>/);
     const canonical = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
     assert.equal(new URL(canonical).pathname, path);
     const description = html.match(/<meta name="description" content="([^"]+)"/)?.[1];
-    assert.match(description ?? '', /Dallas, TX\b/);
+    assert.match(description ?? '', /Harrisburg, PA\b/);
     serviceDescriptions.add(description);
     assert.match(html, new RegExp(`href="${path}" aria-current="page"`));
-    assert.match(html, /href="#featured-work">See Our Work[\s\S]*?data-icon="chevron-right"[\s\S]*?<\/a>/);
+    assert.match(html, /href="#featured-work">[\s\S]*?(?:See Our Work|Explore Basement Ideas)[\s\S]*?data-icon="chevron-right"[\s\S]*?<\/a>/);
     let position = -1;
     for (const marker of ['What’s Included</h2>', 'id="featured-work"', 'Frequently Asked Questions</h2>', 'id="remodel-gallery-title"', 'id="bottom-estimate-form"', '<footer']) {
       const next = html.indexOf(marker);
@@ -106,10 +106,18 @@ for (const [path, prefix] of Object.entries(pageTitlePrefixes)) {
     const captions = region => [...region.matchAll(/<figcaption\b[^>]*>([^<]+)<\/figcaption>/g)].map(match => match[1]);
     const before = `${servicePage[1]}: Before`;
     const after = `${servicePage[1]}: After`;
+    if (category === 'basement') {
+      const examples = ['family', 'media', 'office'].map(kind => `/images/remodel-basement-${kind}-960.webp`);
+      assert.deepEqual(imageSources(featured), [...examples, ...examples]);
+      assert.deepEqual(imageSources(estimateGallery), examples);
+      assert.ok(captions(featured).every(caption => caption.startsWith('Basement ')));
+      assert.doesNotMatch(featured, /AI-generated|AI generated/);
+    } else {
     assert.deepEqual(imageSources(featured), [...galleryPhotos, ...galleryPhotos]);
     assert.deepEqual(captions(featured), [before, after, before, after]);
     assert.deepEqual(imageSources(estimateGallery), galleryPhotos);
     assert.deepEqual(captions(estimateGallery), ['Before', 'After']);
+    }
     assert.equal([...html.matchAll(/aria-expanded="false" aria-controls="service-faq-answer-/g)].length, 7);
     assert.match(html, new RegExp(`<option[^>]*value="${category}" selected>`));
     const redirect = await fetch(new URL(`${path}/`, url), { redirect: 'manual' });

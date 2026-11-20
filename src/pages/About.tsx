@@ -9,9 +9,9 @@ export default function About() {
       <div class="about-copy">
         <section aria-labelledby="about-story-title">
           <h2 id="about-story-title">Our Story</h2>
-          <p>My name is <strong>Adam Blackwood</strong>, and I'm proud to carry on the foundation my father established in <strong>2006</strong>. For over 20 years, we've helped homeowners throughout <strong>Dallas, Texas</strong>, and surrounding communities improve their homes through quality remodeling and personalized service.</p>
+          <p>My name is <strong>Adam Blackwood</strong>, and I'm proud to carry on the foundation my father established in <strong>2006</strong>. For over 20 years, we've helped homeowners throughout <strong>Harrisburg, Pennsylvania</strong>, and surrounding communities improve their homes through quality remodeling and personalized service.</p>
           <p>Today, we maintain the same commitment to quality craftsmanship and personal service that has guided the business from the beginning. We approach every home remodeling project with clear communication, careful planning, and attention to detail.</p>
-          <p>Our team brings hands-on experience to <a href="/services/kitchen"><strong>kitchen remodeling</strong></a>, <a href="/services/bathroom"><strong>bathroom remodeling</strong></a>, and <a href="/services/flooring"><strong>flooring</strong></a>. Whether you're updating one room or several, our goal is to deliver quality results that reflect your priorities and make your home work better for you.</p>
+          <p>Our team brings hands-on experience to <a href="/services/kitchen"><strong>kitchen remodeling</strong></a>, <a href="/services/bathroom"><strong>bathroom remodeling</strong></a>, and <a href="/services/basement-remodeling"><strong>basement remodeling</strong></a>. Whether you're updating one room or several, our goal is to deliver quality results that reflect your priorities and make your home work better for you.</p>
         </section>
         <section aria-labelledby="about-mission-title">
           <h2 id="about-mission-title">Our Mission</h2>

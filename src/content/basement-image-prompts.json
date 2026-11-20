@@ -1,0 +1,29 @@
+{
+  "generator": "Built-in image_gen tool",
+  "images": [
+    {
+      "name": "family",
+      "prompt": "Use case: photorealistic-natural. Asset: landscape 3:2 website basement-finishing inspiration photo. A professionally finished Pennsylvania basement family room with realistic modest ceiling height, small high basement windows, warm recessed lighting, light neutral walls, oak-look flooring, comfortable sofa, and built-in storage. Warm natural interior photography, believable proportions and craftsmanship, wide view with no people. Not a before/after, no company branding, no text, no watermark. This is an illustrative design example, not a real contractor portfolio project.",
+      "outputs": [
+        "public/images/remodel-basement-family-480.webp",
+        "public/images/remodel-basement-family-960.webp"
+      ]
+    },
+    {
+      "name": "media",
+      "prompt": "Use case: photorealistic-natural. Asset: landscape 3:2 website basement-finishing inspiration photo. A realistic Pennsylvania finished basement media room with small high basement windows, comfortable sectional seating, recessed ceiling lighting, subtle wall lighting, wood-look flooring, and a wall-mounted television showing an unbranded dark screen. Modest believable basement ceiling height, warm neutral materials, restrained attractive furnishings. Professional natural interior photography, realistic construction and proportions, wide view, no people, no logos, no text or watermark. Illustrative design example, not a real contractor project; no before/after.",
+      "outputs": [
+        "public/images/remodel-basement-media-480.webp",
+        "public/images/remodel-basement-media-960.webp"
+      ]
+    },
+    {
+      "name": "office",
+      "prompt": "Use case: photorealistic-natural. Asset: landscape 3:2 website basement-finishing inspiration photo. A realistic Pennsylvania finished basement flexible home office and recreation area with small high basement windows, a practical desk, built-in storage, an open recreation space, warm recessed lighting, and wood-look flooring. Modest believable basement ceiling height, warm neutral materials, restrained attractive furnishings. Professional natural interior photography, realistic construction and proportions, wide view, no people, no logos, no text or watermark. Illustrative design example, not a real contractor project; no before/after.",
+      "outputs": [
+        "public/images/remodel-basement-office-480.webp",
+        "public/images/remodel-basement-office-960.webp"
+      ]
+    }
+  ]
+}

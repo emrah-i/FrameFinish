@@ -1,14 +1,14 @@
 import { displayedCategories, site } from './content';
 
 export function serviceHref(id: string) {
-  return `/services/${id}` as const;
+  return `/services/${id === 'basement' ? 'basement-remodeling' : id}` as const;
 }
 
 const serviceDetails = {
   kitchen: {
     navLabel: 'Kitchen',
-    pageTitle: 'Kitchen Remodeling in Dallas, TX',
-    metaDescription: 'Plan a kitchen remodel in Dallas, TX, with custom cabinetry, new countertops, lighting coordination, and layout changes. Request a free quote.',
+    pageTitle: 'Kitchen Remodeling in Harrisburg, PA',
+    metaDescription: 'Plan a kitchen remodel in Harrisburg, PA, with custom cabinetry, new countertops, lighting coordination, and layout changes. Request a free quote.',
     summary: 'Plan a kitchen remodel around the way you cook, gather, and move through your home.',
     highlights: [
       { title: 'Custom Kitchen Design and Layout Planning', description: 'Plan where you prep, cook, and clean up, and make room for how people move through the kitchen.' },
@@ -30,8 +30,8 @@ const serviceDetails = {
   },
   bathroom: {
     navLabel: 'Bathroom',
-    pageTitle: 'Bathroom Remodeling in Dallas, TX',
-    metaDescription: 'Explore bathroom remodeling in Dallas, TX, including custom layouts, vanity cabinetry, shower remodels, and tub-to-shower conversions.',
+    pageTitle: 'Bathroom Remodeling in Harrisburg, PA',
+    metaDescription: 'Explore bathroom remodeling in Harrisburg, PA, including custom layouts, vanity cabinetry, shower remodels, and tub-to-shower conversions.',
     summary: 'Plan a bathroom update for easier routines, more useful storage, and the finishes you want.',
     highlights: [
       { title: 'Custom Bathroom Remodel and Layout Planning', description: 'Plan fixture placement, storage, and clearances around how you use the bathroom each day.' },
@@ -51,33 +51,33 @@ const serviceDetails = {
       ['How long does a bathroom remodel take?', 'The timeline depends on layout changes, plumbing work, material availability, and tile installation. We confirm your project timeline after reviewing the scope.'],
     ],
   },
-  flooring: {
-    navLabel: 'Flooring',
-    pageTitle: 'Flooring in Dallas, TX',
-    metaDescription: 'Plan flooring replacement in Dallas, TX, from material selection and removal to subfloor preparation, installation, transitions, and trim.',
-    summary: 'Explore flooring updates for the rooms you use most, from replacing one worn surface to updating several rooms.',
+  basement: {
+    navLabel: 'Basements',
+    pageTitle: 'Basement Remodeling in Harrisburg, PA',
+    metaDescription: 'Plan basement remodeling in Harrisburg, PA, with practical layouts, walls, ceilings, lighting, storage, and flooring. Request a free quote.',
+    summary: 'Turn your unfinished basement into space for relaxing, working, or spending time together.',
     highlights: [
-      { title: 'Material and Layout Planning', description: 'Compare flooring options for each room and plan how the layout will flow between spaces.' },
-      { title: 'Existing Floor Removal', description: 'Identify which surfaces need to come up and where the new flooring will meet floors that are staying.' },
-      { title: 'Subfloor Preparation', description: 'Review uneven, soft, or damaged areas and plan the preparation the new floor needs.' },
-      { title: 'Flooring Installation', description: 'Plan installation around the selected material, the rooms involved, and how they connect.' },
-      { title: 'Transitions and Trim', description: 'Choose transition pieces, baseboards, and trim details for doorways and room edges.' },
-      { title: 'Stair Flooring', description: 'Choose stair tread finishes and plan how they’ll transition to the flooring at the top and bottom of the stairs.' },
+      { title: 'Layout and Framing', description: 'Plan room divisions and frame the space around how you want to use your basement.' },
+      { title: 'Walls and Ceilings', description: 'Choose wall and ceiling finishes with room for existing systems and access where needed.' },
+      { title: 'Basement Lighting', description: 'Plan lighting for work areas, seating, and everyday use, making the most of available natural light.' },
+      { title: 'Flooring and Finishes', description: 'Choose flooring, colors, and trim suited to the space and the way you plan to use it.' },
+      { title: 'Storage and Built-Ins', description: 'Plan storage for household items, hobbies, and equipment without losing useful living space.' },
+      { title: 'Stairs and Access', description: 'Review stairs, doorways, and routes through the basement as part of the overall layout.' },
     ],
     faqs: [
-      ['How do I choose flooring for each room?', 'Consider foot traffic, pets, moisture, and cleaning. A kitchen, entry, and bedroom can have different needs, even if you want a consistent look throughout the home.'],
-      ['Does the existing flooring need to be removed?', 'It depends on the condition of the existing surface and the requirements of the new flooring. Tell us what is in each room so removal can be considered in your quote.'],
-      ['What does it take to prepare the subfloor?', 'Preparation depends on what is beneath the current floor and how flat and sound it is. Mention any soft spots, uneven areas, or signs of moisture when you request a quote.'],
-      ['How do I plan flooring transitions and trim?', 'Start with the doorways and room edges where new flooring meets another surface. The materials and any difference in height help determine which transitions and trim will fit.'],
-      ['What should I include in a flooring quote request?', 'Include your project ZIP code, the rooms you want to update, the current flooring, and any materials you are considering. Approximate measurements and known trouble spots also help.'],
-      ['How much does it cost?', 'Cost depends on the square footage, flooring material, and how much existing flooring removal or subfloor preparation is needed.'],
-      ['How long does flooring installation take?', 'The timeline depends on the square footage, existing flooring removal, subfloor preparation, and the selected material’s installation requirements. We confirm your project timeline after reviewing the scope.'],
+      ['How do I start planning a basement remodeling project?', 'Think about how you want to use the space, what you need to store, and which areas should stay accessible. Share your priorities during the project review.'],
+      ['What existing conditions should be reviewed first?', 'Tell us about moisture, uneven surfaces, low ceilings, and existing plumbing or electrical equipment. These conditions need to be reviewed before the finishing plan is confirmed.'],
+      ['What can I use a finished basement for?', 'A finished basement can provide space for a family room, home office, hobbies, or recreation. The layout depends on the available space and existing conditions.'],
+      ['How do I choose basement materials?', 'Consider moisture conditions, daily use, maintenance, and the look you want. We can discuss options for walls, ceilings, and flooring during planning.'],
+      ['What should I include in a basement remodeling quote request?', 'Include your project ZIP code, approximate basement size, intended uses, and any known issues. Photos and a list of priorities can help with the project review.'],
+      ['How much does basement remodeling cost?', 'Cost depends on the size, existing conditions, layout, materials, and the amount of work needed. We review the scope before preparing a quote.'],
+      ['How long does basement remodeling take?', 'The timeline depends on the project scope, existing conditions, material availability, and the work involved. We confirm your project timeline after reviewing the scope.'],
     ],
   },
 } as const;
 
 export const serviceRoutes = displayedCategories.flatMap(category => {
-  if (category.id !== 'kitchen' && category.id !== 'bathroom' && category.id !== 'flooring') return [];
+  if (category.id !== 'kitchen' && category.id !== 'bathroom' && category.id !== 'basement') return [];
   return [{ ...category, ...serviceDetails[category.id], href: serviceHref(category.id) }];
 });
 

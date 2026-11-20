@@ -26,8 +26,8 @@ const homepage = await read('dist/client/index.html');
 assert.equal(homepage.includes('noindex, nofollow'), Boolean(site.coverageProvisional), 'The built homepage has stale robots settings. Rebuild before deploying.');
 assert.ok(homepage.includes(`rel="canonical" href="${canonical.origin}/"`), 'The built canonical URL is stale. Rebuild before deploying.');
 
-if (site.coverageProvisional || !site.serviceAreas.some(area => area.zipCodes.length || area.partialZipCodes?.length)) {
-  console.warn('Warning: Replace placeholder ZIPs with approved coverage and clear coverageProvisional.');
+if (site.coverageProvisional) {
+  console.warn('Warning: The site is not indexable while coverageProvisional is enabled.');
 }
 if (site.phonePlaceholder) console.warn('Warning: Replace the placeholder phone or remove it and clear phonePlaceholder.');
 if (!site.turnstileSiteKey) console.warn('Warning: Add the public production Turnstile site key to enable form verification.');

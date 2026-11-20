@@ -90,7 +90,7 @@ export async function fillRequest(form: Locator, overrides: Partial<EstimateFiel
   await form.getByLabel('Full Name').fill(values.name);
   await form.getByLabel('Email Address', { exact: true }).fill(values.email);
   await form.getByLabel('Phone Number', { exact: true }).fill(values.phone);
-  await form.getByLabel('Project ZIP Code').fill(values.zip);
+  await form.getByLabel('ZIP Code').fill(values.zip);
   await project(form).selectOption(values.category);
   if (contact) await form.getByLabel('Message', { exact: true }).fill(values.description);
 }

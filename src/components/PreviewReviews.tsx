@@ -12,7 +12,7 @@ const sampleReviews = [
   { author: 'Taylor Brooks', date: '2026-09-29', text: 'We were able to share our ideas and explain which parts of the kitchen mattered most to us.', rating: 5 },
   { author: 'Jordan Finch', date: '2026-09-22', text: 'It was helpful to look at both a small refresh and a more complete bathroom update.', rating: 5 },
   { author: 'Cameron Bell', date: '2026-09-15', text: 'We weren\'t sure where to start, and the follow-up helped us get organized.', rating: 4 },
-  { author: 'Reese Hayes', date: '2026-09-08', text: 'We appreciated being able to ask about flooring for more than one room.', rating: 5 },
+  { author: 'Reese Hayes', date: '2026-09-08', text: 'We appreciated being able to discuss ideas for our basement.', rating: 5 },
   { author: 'Quinn Miller', date: '2026-08-30', text: 'We talked through storage and lighting together, which made the kitchen plan feel more practical.', rating: 5 },
   { author: 'Alex Rowe', date: '2026-08-23', text: 'It was helpful to explain what we liked about the bathroom before talking about changes.', rating: 5 },
   { author: 'Devon Lane', date: '2026-08-16', text: 'The estimate process was straightforward, even though we were still weighing our options.', rating: 4 },

@@ -15,13 +15,13 @@ export default function Service(props: { service: ServiceRoute }) {
   const [openFaq, setOpenFaq] = createSignal<number>();
 
   return <main id="main-content" tabindex="-1" class="service-page">
-    <section class="hero service-page-hero quote-form-hero" classList={{ 'hero-wide-copy': props.service.id !== 'flooring' }}
+    <section class="hero service-page-hero quote-form-hero hero-wide-copy"
       aria-labelledby="service-page-title" data-reveal-group="" data-reveal-children="">
       <Photo image={props.service.photo} priority sizes="100vw" class="hero-photo" />
       <div class="hero-copy">
         <h1 id="service-page-title">
-          {props.service.pageTitle.split(/(Dallas)/).map(part =>
-            part === 'Dallas' ? <span class="hero-city">{part}</span> : part
+          {props.service.pageTitle.split(/(Harrisburg)/).map(part =>
+            part === 'Harrisburg' ? <span class="hero-city">{part}</span> : part
           )}
         </h1>
         <p>{props.service.summary}</p>

@@ -1,6 +1,6 @@
 .remodel-gallery { min-width: 0; }
 
-@media (min-width: 781px) {
+@media (min-width: 901px) {
   .estimate-section-copy,
   .remodel-gallery,
   .remodel-gallery :is(.media-carousel, .media-carousel-viewport, .media-carousel-item, figure) {

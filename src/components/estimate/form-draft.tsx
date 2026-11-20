@@ -22,6 +22,7 @@ function decode(raw: string | null): Entries | undefined {
     const entries: Entries = {};
     for (const field of fields) {
       const entry = record.fields[field];
+      if (field === 'category' && entry?.value === 'flooring') continue;
       if (typeof entry?.value === 'string' && typeof entry.revision === 'string') {
         entries[field] = { value: field === 'category' && entry.value === 'unsure' ? 'other' : entry.value.slice(0, fieldLimits[field]), revision: entry.revision };
       }
