@@ -130,7 +130,7 @@ body:has(.estimate-dialog[open]) .sticky-estimate { visibility: hidden; }
 .hero small { display: block; margin-top: 13px; font-size: .83rem; color: #e9e3dc; }
 .hero :focus-visible, .site-footer :focus-visible { outline-color: white; }
 .quote-form-hero { grid-template-columns: minmax(0, 1fr) minmax(280px, var(--quote-form-width)); column-gap: clamp(20px, 6vw, 90px); padding-inline-end: var(--page-gutter); }
-.home-hero h1 { max-width: 18ch; font-size: clamp(2.12rem, 4.65vw, 4.45rem); }
+.home-hero h1 { max-width: 18ch; font-size: clamp(2.12rem, 4.65vw, 4.05rem); }
 :is(.hero-estimate, .estimate-form-panel) { min-width: 0; background: var(--color-warm-white); color: var(--color-charcoal); padding: clamp(20px, 3vw, 36px); box-shadow: 0 12px 36px #1717172e; }
 :is(.hero-estimate, .estimate-form-panel) h2 { margin-bottom: 20px; font-size: clamp(1.65rem, 3vw, 2.3rem); }
 .hero-estimate .hero-estimate-intro, .estimate-form-panel .section-head p { margin-top: 0; color: #52504d; font-size: .95rem; }
